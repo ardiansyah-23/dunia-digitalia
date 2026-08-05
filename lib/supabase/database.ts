@@ -40,7 +40,8 @@ let localMemoryStore: Record<string, any[]> = {
 };
 
 // Check if using default placeholder config
-const isMocked = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project');
+export const isMockDatabase = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project');
+const isMocked = isMockDatabase;
 
 export async function getDocById<T>(collectionName: string, id: string): Promise<T | null> {
   if (isMocked) {

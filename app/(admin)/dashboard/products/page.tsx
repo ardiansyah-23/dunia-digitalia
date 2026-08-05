@@ -5,7 +5,7 @@ import { Plus, Search, Edit2, Trash2, Loader2 } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichEditor from '@/components/admin/RichEditor';
 import toast from 'react-hot-toast';
-import { getCollection, setDocById, deleteDocById } from '@/lib/supabase/database';
+import { getCollection, setDocById, deleteDocById, isMockDatabase } from '@/lib/supabase/database';
 import { CATEGORIES_DATA } from '@/lib/constants/categories';
 
 export default function AdminProductsPage() {
@@ -143,6 +143,18 @@ export default function AdminProductsPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Upload & Kelola Produk Digital</h1>
           <p className="text-xs text-gray-500">Upload template Blogger, source code, ebook, dan file digital.</p>
+          
+          {isMockDatabase ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 mt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Mode Simulasi / Local Mock (Data akan hilang jika di-refresh karena Vercel Env Variables belum aktif)
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 mt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Koneksi Supabase Live Database Aktif
+            </span>
+          )}
         </div>
         <button onClick={handleOpenAdd} className="btn-primary text-xs px-4 py-2.5 flex items-center gap-2">
           <Plus className="w-4 h-4" /> Upload Produk Baru
