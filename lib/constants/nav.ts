@@ -1,25 +1,18 @@
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Services', href: '/services' },
+  { label: 'Produk', href: '/produk' },
+  { label: 'Jasa Web', href: '/jasa' },
   { label: 'Portfolio', href: '/portfolio' },
-  { label: 'Tutorial', href: '/tutorial' },
-  { label: 'Articles', href: '/articles' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Promo', href: '/promo' },
+  { label: 'Tentang', href: '/about' },
+  { label: 'Kontak', href: '/contact' },
 ];
-
-export const SOCIAL_LINKS = {
-  whatsapp: 'https://wa.me/6281234567890',
-  email: 'mailto:hello@duniadigitalia.com',
-  instagram: 'https://instagram.com/duniadigitalia',
-  linkedin: 'https://linkedin.com/company/duniadigitalia',
-  github: 'https://github.com/duniadigitalia',
-};
 
 export const COMPANY_INFO = {
   name: 'Dunia Digitalia',
-  tagline: 'Digital Agency & Technology Education',
-  description: 'Platform terdepan untuk belajar Kecerdasan Buatan, Pengembangan Web, Otomasi, dan Teknologi Modern.',
+  tagline: 'Digital Marketplace & Web Development Agency',
+  description: 'Pusat template Blogger premium, source code website, produk digital berkualitas, dan jasa pembuatan web profesional.',
   address: 'Pancoran, Jakarta Selatan, DKI Jakarta, Indonesia',
   email: 'hello@duniadigitalia.com',
   phone: '+62 812 3456 7890',

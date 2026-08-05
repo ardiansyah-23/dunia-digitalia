@@ -1,0 +1,100 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  FileText,
+  Layers,
+  Image as ImageIcon,
+  MessageSquare,
+  Users,
+  Settings,
+  LogOut,
+  Star,
+  CreditCard,
+  Tag,
+} from 'lucide-react';
+import { signOutUser } from '@/lib/supabase/auth';
+import toast from 'react-hot-toast';
+
+const ADMIN_MENU = [
+  { label: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Transaksi & Orders', href: '/dashboard/orders', icon: CreditCard },
+  { label: 'Produk Digital', href: '/dashboard/products', icon: ShoppingBag },
+  { label: 'Kupon & Promo', href: '/dashboard/coupons', icon: Tag },
+  { label: 'Jasa Pembuatan Web', href: '/dashboard/services', icon: Layers },
+  { label: 'Artikel & Blog', href: '/dashboard/articles', icon: FileText },
+  { label: 'Galeri Media', href: '/dashboard/gallery', icon: ImageIcon },
+  { label: 'Testimonial Klien', href: '/dashboard/testimonials', icon: Star },
+  { label: 'Pesan Masuk', href: '/dashboard/messages', icon: MessageSquare },
+  { label: 'User & Akses', href: '/dashboard/users', icon: Users },
+  { label: 'Pengaturan Situs', href: '/dashboard/settings', icon: Settings },
+];
+
+export default function AdminSidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem('admin_demo_user');
+      await signOutUser();
+    } catch (e) {
+      console.error(e);
+    }
+    toast.success('Berhasil keluar');
+    router.push('/login');
+  };
+
+  return (
+    <aside className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0 shadow-xs z-20">
+      {/* Header */}
+      <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shrink-0 shadow-md shadow-blue-500/20">
+          D
+        </div>
+        <div>
+          <h2 className="font-extrabold text-gray-900 text-sm whitespace-nowrap">Dunia Digitalia</h2>
+          <span className="text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded whitespace-nowrap">
+            Admin Marketplace
+          </span>
+        </div>
+      </div>
+
+      {/* Nav List */}
+      <nav className="flex-grow p-4 space-y-1.5 overflow-y-auto">
+        {ADMIN_MENU.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm font-bold'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer / Logout */}
+      <div className="p-4 border-t border-gray-100">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-all"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">Keluar Admin</span>
+        </button>
+      </div>
+    </aside>
+  );
+}

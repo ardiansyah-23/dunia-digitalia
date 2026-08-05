@@ -1,3 +1,48 @@
+export type OrderStatus = 'Pending' | 'Paid' | 'Expired' | 'Failed' | 'Cancelled' | 'Refunded';
+
+export type PaymentMethodCode =
+  | 'QRIS'
+  | 'BCAVA'
+  | 'BNIVA'
+  | 'BRIVA'
+  | 'MANDIRIVA'
+  | 'PERMATAVA'
+  | 'ALFAMART'
+  | 'INDOMARET';
+
+export interface Product {
+  id: string;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  description: string;
+  category: string;
+  price: number;
+  discountPrice?: number;
+  version: string;
+  demoUrl?: string;
+  downloadUrl?: string;
+  thumbnail: string;
+  screenshots: string[];
+  features: string[];
+  salesCount: number;
+  rating: number;
+  reviewCount: number;
+  isFeatured: boolean;
+  changelog?: { version: string; date: string; notes: string[] }[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  description: string;
+  productCount: number;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -14,38 +59,9 @@ export interface Article {
   readTime: number;
   published: boolean;
   featured: boolean;
-  createdAt: Date | string;
-  updatedAt: Date | string;
   views: number;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  longDescription: string;
-  thumbnail: string;
-  images: string[];
-  category: string;
-  technologies: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  featured: boolean;
-  completed: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
-}
-
-export interface Service {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  features: string[];
-  price?: string;
-  order: number;
-  active: boolean;
 }
 
 export interface Testimonial {
@@ -60,65 +76,95 @@ export interface Testimonial {
   createdAt: Date | string;
 }
 
-export interface GalleryItem {
+export interface OrderItem {
+  productId: string;
+  productTitle: string;
+  productSlug: string;
+  price: number;
+  quantity: number;
+  downloadUrl?: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  totalAmount: number;
+  paymentMethod: PaymentMethodCode;
+  paymentMethodName: string;
+  status: OrderStatus;
+  tripayReference?: string;
+  tripayPayCode?: string;
+  tripayQrUrl?: string;
+  tripayCheckoutUrl?: string;
+  tripayExpiredAt?: number;
+  paidAt?: Date | string;
+  licenseKey?: string;
+  notes?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface TripayCallbackPayload {
+  reference: string;
+  merchant_ref: string;
+  payment_method: string;
+  payment_method_code: PaymentMethodCode;
+  total_amount: number;
+  status: 'PAID' | 'EXPIRED' | 'FAILED' | 'REFUND';
+  paid_at?: number;
+  signature: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  minPurchase?: number;
+  maxDiscount?: number;
+  usageLimit?: number;
+  usedCount: number;
+  expiresAt: Date | string;
+  active: boolean;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  isVerifiedPurchase: boolean;
+  createdAt: Date | string;
+}
+
+export interface DownloadItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  productTitle: string;
+  version: string;
+  downloadUrl: string;
+  licenseKey: string;
+  purchasedAt: Date | string;
+}
+
+export interface ServicePackage {
   id: string;
   title: string;
-  description: string;
-  imageUrl: string;
-  category: string;
-  order: number;
-  createdAt: Date | string;
-}
-
-export interface Message {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  subject: string;
-  message: string;
-  read: boolean;
-  replied: boolean;
-  createdAt: Date | string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
   slug: string;
-  type: 'article' | 'project' | 'gallery' | 'service';
-  order: number;
-}
-
-export interface SiteSettings {
-  id: string;
-  siteName: string;
-  tagline: string;
   description: string;
-  logoUrl: string;
-  faviconUrl: string;
-  email: string;
-  phone: string;
-  whatsapp: string;
-  instagram: string;
-  linkedin: string;
-  github: string;
-  address: string;
-  googleMapsEmbed: string;
-  stats: {
-    projects: number;
-    clients: number;
-    articles: number;
-    students: number;
-  };
-}
-
-export interface User {
-  id: string;
-  email: string;
-  displayName: string;
-  photoURL: string;
-  role: 'admin' | 'editor' | 'viewer';
-  createdAt: Date | string;
-  lastLogin: Date | string;
+  features: string[];
+  startingPrice: number;
+  estimatedDays: string;
+  category: string;
+  icon: string;
 }
