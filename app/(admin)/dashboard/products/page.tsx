@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit2, Trash2, Loader2 } from 'lucide-react';
@@ -32,8 +33,9 @@ export default function AdminProductsPage() {
     try {
       const data = await getCollection<any>('products');
       setProducts(data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading products:', err);
+      toast.error(`Gagal memuat produk dari database: ${err.message || 'Cek koneksi / izin RLS Supabase'}`);
     } finally {
       setLoading(false);
     }

@@ -53,7 +53,10 @@ export async function getDocById<T>(collectionName: string, id: string): Promise
     .select('*')
     .eq('id', id)
     .maybeSingle();
-  if (error) console.error(error);
+  if (error) {
+    console.error(error);
+    throw error;
+  }
   return data as T | null;
 }
 
@@ -66,7 +69,10 @@ export async function getCollection<T>(
   }
   let query = supabase.from(collectionName).select('*');
   const { data, error } = await query;
-  if (error) console.error(error);
+  if (error) {
+    console.error(error);
+    throw error;
+  }
   return (data || []) as T[];
 }
 
