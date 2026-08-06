@@ -53,12 +53,28 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'PROMO2026') {
-      setDiscount(20000);
-      toast.success('Kupon PROMO2026 berhasil dipasang! Diskon Rp 20.000');
-    } else {
-      toast.error('Kode kupon tidak valid atau kadaluarsa.');
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    const toastId = toast.loading('Memverifikasi kupon...');
+    try {
+      const coupons = await getCollection<any>('coupons');
+      const found = coupons.find((c) => c.code.toUpperCase() === couponCode.toUpperCase() && c.active);
+      toast.dismiss(toastId);
+      if (found) {
+        let discountVal = 0;
+        if (found.type === 'fixed') {
+          discountVal = Number(found.value);
+        } else if (found.type === 'percentage') {
+          discountVal = Math.round((selectedProduct.price * Number(found.value)) / 100);
+        }
+        setDiscount(discountVal);
+        toast.success(`Kupon ${found.code} berhasil dipasang! Diskon Rp ${discountVal.toLocaleString('id-ID')}`);
+      } else {
+        toast.error('Kode kupon tidak valid atau sudah tidak aktif.');
+      }
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error('Gagal memverifikasi kupon.');
     }
   };
 

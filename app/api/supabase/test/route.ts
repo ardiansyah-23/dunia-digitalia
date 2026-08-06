@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const diagnostics: Record<string, any> = {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not Set',
