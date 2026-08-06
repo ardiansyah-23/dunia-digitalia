@@ -150,19 +150,20 @@ CREATE TABLE IF NOT EXISTS services (
 -- -------------------------------------------------------
 -- 9. SETTINGS TABLE (Site Configuration)
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS settings (
+DROP TABLE IF EXISTS settings;
+CREATE TABLE settings (
   id TEXT PRIMARY KEY DEFAULT 'main',
-  "siteName" TEXT DEFAULT 'Dunia Digitalia',
+  site_name TEXT DEFAULT 'Dunia Digitalia',
   tagline TEXT,
   email TEXT,
   phone TEXT,
   address TEXT,
-  "workingHours" TEXT,
-  "tripayMerchantCode" TEXT,
-  "tripayMode" TEXT DEFAULT 'sandbox',
-  "heroTitle" TEXT,
-  "heroSubtitle" TEXT,
-  "aboutText" TEXT,
+  working_hours TEXT,
+  tripay_merchant_code TEXT,
+  tripay_mode TEXT DEFAULT 'sandbox',
+  hero_title TEXT,
+  hero_subtitle TEXT,
+  about_text TEXT,
   logo_url TEXT,
   og_image TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -219,7 +220,7 @@ ALTER TABLE gallery DISABLE ROW LEVEL SECURITY;
 -- ============================================================
 -- INSERT DEFAULT SETTINGS ROW
 -- ============================================================
-INSERT INTO settings (id, "siteName", tagline, email, phone, address, "workingHours", "tripayMerchantCode", "tripayMode")
+INSERT INTO settings (id, site_name, tagline, email, phone, address, working_hours, tripay_merchant_code, tripay_mode)
 VALUES (
   'main',
   'Dunia Digitalia',
@@ -232,3 +233,4 @@ VALUES (
   'sandbox'
 )
 ON CONFLICT (id) DO NOTHING;
+

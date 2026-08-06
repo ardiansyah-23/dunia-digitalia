@@ -18,14 +18,14 @@ let localMemoryStore: Record<string, any[]> = {
   settings: [
     {
       id: 'main',
-      siteName: 'Dunia Digitalia',
+      site_name: 'Dunia Digitalia',
       tagline: 'Digital Marketplace & Web Development Agency',
       email: 'hello@duniadigitalia.com',
       phone: '+62 812 3456 7890',
       address: 'Pancoran, Jakarta Selatan, DKI Jakarta, Indonesia',
-      workingHours: 'Senin - Jumat, 09.00 - 18.00 WIB',
-      tripayMerchantCode: 'T12345',
-      tripayMode: 'sandbox'
+      working_hours: 'Senin - Jumat, 09.00 - 18.00 WIB',
+      tripay_merchant_code: 'T12345',
+      tripay_mode: 'sandbox'
     }
   ],
   testimonials: [
