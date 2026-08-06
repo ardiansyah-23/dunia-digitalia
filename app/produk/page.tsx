@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, Star, ShoppingBag } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
@@ -8,19 +8,32 @@ import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
 import { PRODUCTS_DATA } from '@/lib/constants/products';
 import { CATEGORIES_DATA } from '@/lib/constants/categories';
+import { getCollection } from '@/lib/supabase/database';
 
 export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('All');
+  const [products, setProducts] = useState(PRODUCTS_DATA);
+  const [categories, setCategories] = useState(CATEGORIES_DATA);
+
+  useEffect(() => {
+    getCollection<any>('products').then(data => {
+      if (data && data.length > 0) setProducts(data);
+    }).catch(console.error);
+
+    getCollection<any>('categories').then(data => {
+      if (data && data.length > 0) setCategories(data);
+    }).catch(console.error);
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS_DATA.filter((p) => {
-      const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.shortDescription.toLowerCase().includes(search.toLowerCase());
+    return products.filter((p) => {
+      const matchSearch = (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+        (p.shortDescription || '').toLowerCase().includes(search.toLowerCase());
       const matchCat = selectedCat === 'All' || p.category === selectedCat;
       return matchSearch && matchCat;
     });
-  }, [search, selectedCat]);
+  }, [search, selectedCat, products]);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
@@ -55,7 +68,7 @@ export default function ProductsPage() {
                 >
                   Semua Produk
                 </button>
-                {CATEGORIES_DATA.slice(0, 6).map((cat) => (
+                {categories.slice(0, 6).map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCat(cat.name)}

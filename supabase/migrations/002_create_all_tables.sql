@@ -3,28 +3,42 @@
 -- Run this SQL in Supabase Dashboard → SQL Editor
 -- ============================================================
 
+-- Drop old tables first to ensure new structure is applied cleanly
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS coupons CASCADE;
+DROP TABLE IF EXISTS testimonials CASCADE;
+DROP TABLE IF EXISTS articles CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+DROP TABLE IF EXISTS settings CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
+DROP TABLE IF EXISTS gallery CASCADE;
+
 -- -------------------------------------------------------
 -- 1. PRODUCTS TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
   id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
+  title TEXT NOT NULL,
   slug TEXT UNIQUE,
+  "shortDescription" TEXT,
   description TEXT,
-  price NUMERIC NOT NULL DEFAULT 0,
-  original_price NUMERIC,
   category TEXT,
-  subcategory TEXT,
-  tags TEXT[],
-  images TEXT[],
-  demo_url TEXT,
+  price NUMERIC NOT NULL DEFAULT 0,
+  "discountPrice" NUMERIC DEFAULT 0,
+  version TEXT DEFAULT 'v1.0.0',
+  "demoUrl" TEXT,
+  "downloadUrl" TEXT,
+  thumbnail TEXT,
+  screenshots TEXT[],
   features TEXT[],
-  tech_stack TEXT[],
-  rating NUMERIC DEFAULT 5,
-  review_count INT DEFAULT 0,
-  download_count INT DEFAULT 0,
-  featured BOOLEAN DEFAULT false,
-  active BOOLEAN DEFAULT true,
+  "salesCount" INT DEFAULT 0,
+  rating NUMERIC DEFAULT 5.0,
+  "reviewCount" INT DEFAULT 0,
+  "isFeatured" BOOLEAN DEFAULT false,
+  "createdAt" TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -32,14 +46,14 @@ CREATE TABLE IF NOT EXISTS products (
 -- -------------------------------------------------------
 -- 2. CATEGORIES TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS categories (
+CREATE TABLE categories (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT UNIQUE,
   description TEXT,
   icon TEXT,
   color TEXT,
-  count INT DEFAULT 0,
+  "productCount" INT DEFAULT 0,
   featured BOOLEAN DEFAULT false,
   active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -49,7 +63,7 @@ CREATE TABLE IF NOT EXISTS categories (
 -- -------------------------------------------------------
 -- 3. ORDERS TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
   id TEXT PRIMARY KEY,
   customer_name TEXT NOT NULL,
   customer_email TEXT NOT NULL,
@@ -68,7 +82,7 @@ CREATE TABLE IF NOT EXISTS orders (
 -- -------------------------------------------------------
 -- 4. COUPONS TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS coupons (
+CREATE TABLE coupons (
   id TEXT PRIMARY KEY,
   code TEXT NOT NULL UNIQUE,
   type TEXT NOT NULL DEFAULT 'fixed',
@@ -84,7 +98,7 @@ CREATE TABLE IF NOT EXISTS coupons (
 -- -------------------------------------------------------
 -- 5. TESTIMONIALS TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS testimonials (
+CREATE TABLE testimonials (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   role TEXT,
@@ -100,7 +114,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
 -- -------------------------------------------------------
 -- 6. ARTICLES TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS articles (
+CREATE TABLE articles (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   slug TEXT UNIQUE,
@@ -119,7 +133,7 @@ CREATE TABLE IF NOT EXISTS articles (
 -- -------------------------------------------------------
 -- 7. MESSAGES TABLE (Contact Form Submissions)
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS messages (
+CREATE TABLE messages (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -135,7 +149,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- -------------------------------------------------------
 -- 8. SERVICES TABLE (Jasa Web)
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS services (
+CREATE TABLE services (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   "startingPrice" NUMERIC NOT NULL DEFAULT 0,
@@ -150,20 +164,16 @@ CREATE TABLE IF NOT EXISTS services (
 -- -------------------------------------------------------
 -- 9. SETTINGS TABLE (Site Configuration)
 -- -------------------------------------------------------
-DROP TABLE IF EXISTS settings;
 CREATE TABLE settings (
   id TEXT PRIMARY KEY DEFAULT 'main',
-  site_name TEXT DEFAULT 'Dunia Digitalia',
+  "siteName" TEXT DEFAULT 'Dunia Digitalia',
   tagline TEXT,
   email TEXT,
   phone TEXT,
   address TEXT,
-  working_hours TEXT,
-  tripay_merchant_code TEXT,
-  tripay_mode TEXT DEFAULT 'sandbox',
-  hero_title TEXT,
-  hero_subtitle TEXT,
-  about_text TEXT,
+  "workingHours" TEXT,
+  "tripayMerchantCode" TEXT,
+  "tripayMode" TEXT DEFAULT 'sandbox',
   logo_url TEXT,
   og_image TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -173,7 +183,7 @@ CREATE TABLE settings (
 -- -------------------------------------------------------
 -- 10. PROJECTS / PORTFOLIO TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS projects (
+CREATE TABLE projects (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
@@ -190,7 +200,7 @@ CREATE TABLE IF NOT EXISTS projects (
 -- -------------------------------------------------------
 -- 11. GALLERY TABLE
 -- -------------------------------------------------------
-CREATE TABLE IF NOT EXISTS gallery (
+CREATE TABLE gallery (
   id TEXT PRIMARY KEY,
   title TEXT,
   description TEXT,
@@ -220,7 +230,7 @@ ALTER TABLE gallery DISABLE ROW LEVEL SECURITY;
 -- ============================================================
 -- INSERT DEFAULT SETTINGS ROW
 -- ============================================================
-INSERT INTO settings (id, site_name, tagline, email, phone, address, working_hours, tripay_merchant_code, tripay_mode)
+INSERT INTO settings (id, "siteName", tagline, email, phone, address, "workingHours", "tripayMerchantCode", "tripayMode")
 VALUES (
   'main',
   'Dunia Digitalia',
@@ -233,4 +243,3 @@ VALUES (
   'sandbox'
 )
 ON CONFLICT (id) DO NOTHING;
-

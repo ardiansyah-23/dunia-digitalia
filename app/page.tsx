@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -32,9 +32,26 @@ import PageTransition from '@/components/layout/PageTransition';
 import { PRODUCTS_DATA } from '@/lib/constants/products';
 import { CATEGORIES_DATA } from '@/lib/constants/categories';
 import { FAQ_DATA } from '@/lib/constants/faq';
+import { getCollection } from '@/lib/supabase/database';
 
 export default function MarketplaceHomePage() {
   const [openFaq, setOpenFaq] = useState<string | null>('1');
+  const [products, setProducts] = useState(PRODUCTS_DATA);
+  const [categories, setCategories] = useState(CATEGORIES_DATA);
+
+  useEffect(() => {
+    getCollection<any>('products').then(data => {
+      if (data && data.length > 0) {
+        setProducts(data);
+      }
+    }).catch(err => console.error("Error loading products:", err));
+
+    getCollection<any>('categories').then(data => {
+      if (data && data.length > 0) {
+        setCategories(data);
+      }
+    }).catch(err => console.error("Error loading categories:", err));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
@@ -171,7 +188,7 @@ export default function MarketplaceHomePage() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {CATEGORIES_DATA.map((cat) => (
+                {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/produk?kategori=${cat.slug}`}
@@ -214,7 +231,7 @@ export default function MarketplaceHomePage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {PRODUCTS_DATA.map((product) => (
+                {products.slice(0, 6).map((product) => (
                   <div key={product.id} className="card-product overflow-hidden flex flex-col justify-between">
                     <div>
                       {/* Image Preview */}

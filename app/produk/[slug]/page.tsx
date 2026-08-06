@@ -4,10 +4,22 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
 import { PRODUCTS_DATA } from '@/lib/constants/products';
+import { getCollection } from '@/lib/supabase/database';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = PRODUCTS_DATA.find((p) => p.slug === slug) || PRODUCTS_DATA[0];
+  
+  let product = null;
+  try {
+    const data = await getCollection<any>('products');
+    product = data.find((p) => p.slug === slug);
+  } catch (err) {
+    console.error("Error loading product from database:", err);
+  }
+
+  if (!product) {
+    product = PRODUCTS_DATA.find((p) => p.slug === slug) || PRODUCTS_DATA[0];
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
@@ -64,7 +76,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
                   <h3 className="text-lg font-bold text-gray-900 pt-4 border-t border-gray-100">Fitur Utama</h3>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {product.features.map((feat, i) => (
+                    {Array.isArray(product.features) && (product.features as string[]).map((feat: string, i: number) => (
                       <div key={i} className="flex items-center gap-2 text-xs font-semibold text-gray-700 bg-slate-50 p-3 rounded-xl border border-gray-200">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                         <span>{feat}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingBag, ShieldCheck, CreditCard, Tag, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
@@ -10,6 +10,7 @@ import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
 import { PRODUCTS_DATA } from '@/lib/constants/products';
 import { PaymentMethodCode } from '@/types';
+import { getCollection } from '@/lib/supabase/database';
 
 const PAYMENT_METHODS: Array<{ code: PaymentMethodCode; name: string; category: string; iconText: string }> = [
   { code: 'QRIS', name: 'QRIS (BCA, OVO, ShopeePay, GoPay, Dana)', category: 'Instant QR', iconText: 'QR' },
@@ -24,7 +25,7 @@ const PAYMENT_METHODS: Array<{ code: PaymentMethodCode; name: string; category: 
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [selectedProduct] = useState(PRODUCTS_DATA[0]);
+  const [selectedProduct, setSelectedProduct] = useState(PRODUCTS_DATA[0]);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -32,6 +33,25 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const prodId = params.get('product');
+    if (prodId) {
+      getCollection<any>('products').then(data => {
+        const found = data.find(p => p.id === prodId);
+        if (found) {
+          setSelectedProduct(found);
+        } else {
+          const localFound = PRODUCTS_DATA.find(p => p.id === prodId);
+          if (localFound) setSelectedProduct(localFound);
+        }
+      }).catch(() => {
+        const localFound = PRODUCTS_DATA.find(p => p.id === prodId);
+        if (localFound) setSelectedProduct(localFound);
+      });
+    }
+  }, []);
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'PROMO2026') {
