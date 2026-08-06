@@ -9,6 +9,7 @@ export async function seedInitialSupabaseData() {
     coupons: 0,
     services: 0,
     settings: false,
+    users: 0,
   };
 
   try {
@@ -82,6 +83,23 @@ export async function seedInitialSupabaseData() {
       tripayMode: 'sandbox',
     });
     results.settings = true;
+
+    // 6. Seed Users
+    const initialUsers = [
+      { id: '1', name: 'Admin Utama', email: 'admin@duniadigitalia.com', role: 'Super Admin' as const, joinedDate: '1 Jan 2026', ordersCount: 0 },
+      { id: '2', name: 'Budi Santoso', email: 'budi@example.com', role: 'Customer' as const, joinedDate: '15 Jan 2026', ordersCount: 3 },
+      { id: '3', name: 'Siti Rahma', email: 'siti@example.com', role: 'Customer' as const, joinedDate: '20 Jan 2026', ordersCount: 1 },
+    ];
+    for (const user of initialUsers) {
+      await setDocById('users', user.id, {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        joinedDate: user.joinedDate,
+        ordersCount: user.ordersCount,
+      });
+      results.users++;
+    }
 
     return { success: true, results };
   } catch (error: any) {

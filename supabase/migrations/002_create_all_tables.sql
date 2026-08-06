@@ -7,6 +7,7 @@
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS coupons CASCADE;
 DROP TABLE IF EXISTS testimonials CASCADE;
 DROP TABLE IF EXISTS articles CASCADE;
@@ -75,6 +76,20 @@ CREATE TABLE orders (
   tripay_reference TEXT,
   status TEXT DEFAULT 'Pending',
   notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- -------------------------------------------------------
+-- 3b. USERS TABLE
+-- -------------------------------------------------------
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  role TEXT DEFAULT 'Customer',
+  "joinedDate" TEXT,
+  "ordersCount" INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -218,6 +233,7 @@ CREATE TABLE gallery (
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE coupons DISABLE ROW LEVEL SECURITY;
 ALTER TABLE testimonials DISABLE ROW LEVEL SECURITY;
 ALTER TABLE articles DISABLE ROW LEVEL SECURITY;
@@ -242,4 +258,14 @@ VALUES (
   'T12345',
   'sandbox'
 )
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- INSERT DEFAULT USERS
+-- ============================================================
+INSERT INTO users (id, name, email, role, "joinedDate", "ordersCount")
+VALUES 
+  ('1', 'Admin Utama', 'admin@duniadigitalia.com', 'Super Admin', '1 Jan 2026', 0),
+  ('2', 'Budi Santoso', 'budi@example.com', 'Customer', '15 Jan 2026', 3),
+  ('3', 'Siti Rahma', 'siti@example.com', 'Customer', '20 Jan 2026', 1)
 ON CONFLICT (id) DO NOTHING;
