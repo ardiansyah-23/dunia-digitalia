@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Mail, Phone, Calendar, MessageSquare, Trash2, CheckCircle2, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getCollection, updateDocById, deleteDocById } from '@/lib/supabase/database';
+import { Mail, Phone, Calendar, MessageSquare, Trash2, CheckCircle2, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface MessageItem {
@@ -11,25 +12,61 @@ interface MessageItem {
   phone: string;
   subject: string;
   message: string;
-  date: string;
   read: boolean;
+  replied: boolean;
+  created_at: string;
 }
 
-const INITIAL_MESSAGES: MessageItem[] = [
-  { id: '1', name: 'Ahmad Fauzi', email: 'ahmad@example.com', phone: '081299998888', subject: 'Konsultasi Jasa Web Development', message: 'Halo tim Dunia Digitalia, saya berminat membuat website toko online e-commerce terintegrasi Tripay. Mohon info estimasi biaya.', date: '4 Agust 2026', read: false },
-  { id: '2', name: 'Diana Putri', email: 'diana@example.com', phone: '081177776666', subject: 'Pertanyaan Lisensi Template Blogger', message: 'Apakah template NewsFast bisa digunakan untuk 3 domain berbeda? Terima kasih.', date: '3 Agust 2026', read: true },
-];
-
 export default function AdminMessagesPage() {
-  const [messages, setMessages] = useState<MessageItem[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleRead = (id: string) => {
-    setMessages(messages.map(m => m.id === id ? { ...m, read: !m.read } : m));
+  const loadMessages = async () => {
+    try {
+      setLoading(true);
+      const data = await getCollection<MessageItem>('messages');
+      const sorted = [...data].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setMessages(sorted);
+    } catch (err) {
+      toast.error('Gagal memuat pesan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setMessages(messages.filter(m => m.id !== id));
-    toast.success('Pesan berhasil dihapus!');
+  useEffect(() => {
+    loadMessages();
+  }, []);
+
+  const toggleRead = async (id: string, currentRead: boolean) => {
+    try {
+      await updateDocById<MessageItem>('messages', id, { read: !currentRead });
+      await loadMessages();
+    } catch (err) {
+      toast.error('Gagal mengubah status baca pesan.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Yakin ingin menghapus pesan ini?')) return;
+    try {
+      await deleteDocById('messages', id);
+      toast.success('Pesan berhasil dihapus!');
+      await loadMessages();
+    } catch (err) {
+      toast.error('Gagal menghapus pesan. Silakan coba lagi.');
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -40,77 +77,87 @@ export default function AdminMessagesPage() {
           <p className="text-xs text-gray-500">Pesan dan pertanyaan dari calon pelanggan dan klien agency.</p>
         </div>
         <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
-          {messages.filter(m => !m.read).length} Belum Dibaca
+          {messages.filter((m) => !m.read).length} Belum Dibaca
         </span>
       </div>
 
-      <div className="space-y-4">
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`p-6 rounded-2xl border transition-all space-y-3 ${
-              !m.read
-                ? 'bg-blue-50 border-blue-300 shadow-sm'
-                : 'bg-white border-gray-200 shadow-xs'
-            }`}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/60 pb-3">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-gray-900 text-sm">{m.name}</h3>
-                {!m.read && (
-                  <span className="badge-danger text-[10px] py-0.5">Baru</span>
-                )}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      ) : messages.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400 gap-3">
+          <MessageSquare className="w-12 h-12 opacity-30" />
+          <p className="text-sm font-medium">Belum ada pesan masuk</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`p-6 rounded-2xl border transition-all space-y-3 ${
+                !m.read
+                  ? 'bg-blue-50 border-blue-300 shadow-sm'
+                  : 'bg-white border-gray-200 shadow-xs'
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-gray-900 text-sm">{m.name}</h3>
+                  {!m.read && (
+                    <span className="badge-danger text-[10px] py-0.5">Baru</span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" /> {formatDate(m.created_at)}
+                </span>
               </div>
-              <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" /> {m.date}
-              </span>
-            </div>
 
-            <div className="flex flex-wrap gap-4 text-xs text-blue-600 font-semibold">
-              <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-gray-400" /> {m.email}</span>
-              <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-gray-400" /> {m.phone}</span>
-            </div>
+              <div className="flex flex-wrap gap-4 text-xs text-blue-600 font-semibold">
+                <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-gray-400" /> {m.email}</span>
+                <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-gray-400" /> {m.phone}</span>
+              </div>
 
-            <div className="text-xs font-bold text-gray-900">
-              Subjek: <span className="text-blue-600 font-medium">{m.subject}</span>
-            </div>
+              <div className="text-xs font-bold text-gray-900">
+                Subjek: <span className="text-blue-600 font-medium">{m.subject}</span>
+              </div>
 
-            <p className="text-xs text-gray-700 leading-relaxed bg-white p-4 rounded-xl border border-gray-200">
-              {m.message}
-            </p>
+              <p className="text-xs text-gray-700 leading-relaxed bg-white p-4 rounded-xl border border-gray-200">
+                {m.message}
+              </p>
 
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={() => toggleRead(m.id)}
-                className="text-xs font-semibold text-gray-600 hover:text-blue-600 flex items-center gap-1"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-gray-400" />
-                {m.read ? 'Tandai Belum Dibaca' : 'Tandai Sudah Dibaca'}
-              </button>
-
-              <div className="flex gap-2">
-                <a
-                  href={`https://wa.me/${m.phone.replace(/\D/g, '')}?text=Halo%20${encodeURIComponent(m.name)},%20terima%20kasih%20telah%20menghubungi%20Dunia%20Digitalia.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary text-xs px-3 py-1.5 inline-flex items-center gap-1.5"
-                >
-                  <Send className="w-3.5 h-3.5" /> Balas via WhatsApp
-                </a>
-
+              <div className="flex items-center justify-between pt-2">
                 <button
-                  onClick={() => handleDelete(m.id)}
-                  className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs"
-                  title="Hapus Pesan"
+                  onClick={() => toggleRead(m.id, m.read)}
+                  className="text-xs font-semibold text-gray-600 hover:text-blue-600 flex items-center gap-1"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-gray-400" />
+                  {m.read ? 'Tandai Belum Dibaca' : 'Tandai Sudah Dibaca'}
                 </button>
+
+                <div className="flex gap-2">
+                  <a
+                    href={`https://wa.me/${m.phone.replace(/\D/g, '')}?text=Halo%20${encodeURIComponent(m.name)},%20terima%20kasih%20telah%20menghubungi%20Dunia%20Digitalia.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary text-xs px-3 py-1.5 inline-flex items-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" /> Balas via WhatsApp
+                  </a>
+
+                  <button
+                    onClick={() => handleDelete(m.id)}
+                    className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs"
+                    title="Hapus Pesan"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
-
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

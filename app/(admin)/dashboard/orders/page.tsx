@@ -1,23 +1,50 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Filter, Download, CheckCircle2, RefreshCw, FileText, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getCollection, updateDocById } from '@/lib/supabase/database';
+import { Loader2, Search, Download, RefreshCw, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const MOCK_ORDERS = [
-  { id: '1', orderNumber: 'ORD-882194', customerName: 'Budi Santoso', email: 'budi@example.com', amount: 149000, method: 'QRIS', status: 'Paid', date: '4 Agust 2026' },
-  { id: '2', orderNumber: 'ORD-771239', customerName: 'Siti Rahma', email: 'siti@example.com', amount: 349000, method: 'BCAVA', status: 'Pending', date: '4 Agust 2026' },
-  { id: '3', orderNumber: 'ORD-662310', customerName: 'Rian Hidayat', email: 'rian@example.com', amount: 199000, method: 'INDOMARET', status: 'Expired', date: '3 Agust 2026' },
-];
+interface Order {
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  product_title: string;
+  amount: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+}
+
+
 
 export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  const filtered = MOCK_ORDERS.filter((o) => {
-    const matchSearch = o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      o.email.toLowerCase().includes(search.toLowerCase());
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await getCollection('orders');
+      setOrders((data as Order[]) || []);
+    } catch (err) {
+      toast.error('Gagal memuat data pesanan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const filtered = orders.filter((o) => {
+    const matchSearch =
+      o.id.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_email.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === 'All' || o.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -26,12 +53,17 @@ export default function AdminOrdersPage() {
     toast.success('Laporan transaksi berhasil di-export ke CSV!');
   };
 
-  const retryCheck = (orderNumber: string) => {
-    toast.loading(`Mengecek status Tripay untuk ${orderNumber}...`);
-    setTimeout(() => {
-      toast.dismiss();
+  const retryCheck = async (id: string) => {
+    const toastId = toast.loading(`Mengecek status Tripay untuk ${id}...`);
+    try {
+      await updateDocById('orders', id, { status: 'Paid' });
+      toast.dismiss(toastId);
       toast.success('Status transaksi diperbarui!');
-    }, 1200);
+      await loadData();
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error('Gagal memperbarui status pesanan.');
+    }
   };
 
   return (
@@ -77,56 +109,72 @@ export default function AdminOrdersPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-        <table className="w-full text-left text-xs text-gray-600">
-          <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
-            <tr>
-              <th className="p-4">No Pesanan</th>
-              <th className="p-4">Pelanggan</th>
-              <th className="p-4">Metode Bayar</th>
-              <th className="p-4">Total</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filtered.map((ord) => (
-              <tr key={ord.id} className="hover:bg-gray-50/50">
-                <td className="p-4 font-bold text-gray-900">{ord.orderNumber}</td>
-                <td className="p-4">
-                  <div className="font-semibold text-gray-900">{ord.customerName}</div>
-                  <span className="text-[11px] text-gray-400">{ord.email}</span>
-                </td>
-                <td className="p-4 font-semibold text-blue-600">{ord.method}</td>
-                <td className="p-4 font-bold text-gray-900">Rp {ord.amount.toLocaleString('id-ID')}</td>
-                <td className="p-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                    ord.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                    ord.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                    'bg-red-50 text-red-700 border border-red-200'
-                  }`}>
-                    {ord.status}
-                  </span>
-                </td>
-                <td className="p-4 text-right space-x-2">
-                  <button
-                    onClick={() => retryCheck(ord.orderNumber)}
-                    className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    title="Cek Ulang Status Tripay"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </button>
-                  <a
-                    href={`/invoice/${ord.orderNumber}?name=${encodeURIComponent(ord.customerName)}&email=${encodeURIComponent(ord.email)}&price=${ord.amount}&method=${ord.method}`}
-                    className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 inline-block"
-                    title="Lihat Invoice"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                  </a>
-                </td>
+        {loading ? (
+          <div className="flex items-center justify-center py-20 text-gray-400">
+            <Loader2 className="w-6 h-6 animate-spin mr-2" />
+            <span className="text-sm">Memuat data pesanan...</span>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <FileText className="w-10 h-10 mb-3 opacity-40" />
+            <p className="text-sm font-medium">Belum ada pesanan masuk</p>
+          </div>
+        ) : (
+          <table className="w-full text-left text-xs text-gray-600">
+            <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
+              <tr>
+                <th className="p-4">No Pesanan</th>
+                <th className="p-4">Pelanggan</th>
+                <th className="p-4">Metode Bayar</th>
+                <th className="p-4">Total</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Aksi</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map((ord) => (
+                <tr key={ord.id} className="hover:bg-gray-50/50">
+                  <td className="p-4 font-bold text-gray-900">{ord.id}</td>
+                  <td className="p-4">
+                    <div className="font-semibold text-gray-900">{ord.customer_name}</div>
+                    <span className="text-[11px] text-gray-400">{ord.customer_email}</span>
+                  </td>
+                  <td className="p-4 font-semibold text-blue-600">{ord.payment_method}</td>
+                  <td className="p-4 font-bold text-gray-900">Rp {ord.amount.toLocaleString('id-ID')}</td>
+                  <td className="p-4">
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                        ord.status === 'Paid'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : ord.status === 'Pending'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-red-50 text-red-700 border border-red-200'
+                      }`}
+                    >
+                      {ord.status}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right space-x-2">
+                    <button
+                      onClick={() => retryCheck(ord.id)}
+                      className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                      title="Cek Ulang Status Tripay"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </button>
+                    <a
+                      href={`/invoice/${ord.id}?name=${encodeURIComponent(ord.customer_name)}&email=${encodeURIComponent(ord.customer_email)}&price=${ord.amount}&method=${ord.payment_method}`}
+                      className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 inline-block"
+                      title="Lihat Invoice"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Edit2, Trash2, CheckCircle2, Globe, Layers } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, CheckCircle2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getCollection, setDocById, deleteDocById } from '@/lib/supabase/database';
 
 interface ServicePackage {
   id: string;
@@ -14,38 +15,10 @@ interface ServicePackage {
   active: boolean;
 }
 
-const INITIAL_SERVICES: ServicePackage[] = [
-  {
-    id: '1',
-    title: 'Company Profile Website',
-    startingPrice: 1500000,
-    description: 'Website profil perusahaan profesional, responsif, siap SEO, dan cepat.',
-    features: ['Gratis Domain .com 1 Thn', 'Optimasi Kecepatan 95+', 'Form Kontak WhatsApp', 'Garansi Maintenance 30 Hari'],
-    estimatedDays: '3 - 5 Hari',
-    active: true,
-  },
-  {
-    id: '2',
-    title: 'Website Toko Online E-Commerce',
-    startingPrice: 2500000,
-    description: 'Website penjualan dengan sistem pembayaran otomatis Tripay (QRIS/VA) dan cek ongkir.',
-    features: ['Payment Gateway QRIS/VA', 'Katalog Produk Unlimited', 'Dashboard Penjualan', 'Cek Ongkir Otomatis'],
-    estimatedDays: '7 - 10 Hari',
-    active: true,
-  },
-  {
-    id: '3',
-    title: 'Portal Berita / Media Digital',
-    startingPrice: 3000000,
-    description: 'Website portal berita bertrafik tinggi dengan manajemen redaksi dan slot iklan.',
-    features: ['Slot Iklan AdSense Ready', 'Kecepatan Ultra', 'Schema News JSON-LD', 'Kategori Berita Multi-level'],
-    estimatedDays: '5 - 7 Hari',
-    active: true,
-  },
-];
-
 export default function AdminServicesPage() {
-  const [services, setServices] = useState<ServicePackage[]>(INITIAL_SERVICES);
+  const [services, setServices] = useState<ServicePackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -55,6 +28,30 @@ export default function AdminServicesPage() {
   const [description, setDescription] = useState('');
   const [features, setFeatures] = useState('');
   const [estimatedDays, setEstimatedDays] = useState('3 - 5 Hari');
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      const data = await getCollection('services');
+      const parsed: ServicePackage[] = (data ?? []).map((item: any) => ({
+        ...item,
+        features: Array.isArray(item.features)
+          ? item.features
+          : typeof item.features === 'string'
+          ? item.features.split('\n').filter(Boolean)
+          : [],
+      }));
+      setServices(parsed);
+    } catch (err: any) {
+      toast.error('Gagal memuat data layanan: ' + (err?.message ?? 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadServices();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -71,12 +68,18 @@ export default function AdminServicesPage() {
     setTitle(s.title);
     setStartingPrice(s.startingPrice);
     setDescription(s.description);
-    setFeatures(s.features.join('\n'));
+    setFeatures(
+      Array.isArray(s.features)
+        ? s.features.join('\n')
+        : typeof s.features === 'string'
+        ? s.features
+        : ''
+    );
     setEstimatedDays(s.estimatedDays);
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !startingPrice) {
       toast.error('Mohon lengkapi judul dan harga layanan!');
@@ -84,37 +87,43 @@ export default function AdminServicesPage() {
     }
 
     const featureList = features.split('\n').filter(Boolean);
+    const id = editingId ?? Date.now().toString();
 
-    if (editingId) {
-      setServices(services.map(s => s.id === editingId ? {
-        ...s,
-        title,
-        startingPrice: Number(startingPrice),
-        description,
-        features: featureList,
-        estimatedDays,
-      } : s));
-      toast.success('Paket layanan berhasil diperbarui!');
-    } else {
-      const newService: ServicePackage = {
-        id: Date.now().toString(),
-        title,
-        startingPrice: Number(startingPrice),
-        description,
-        features: featureList,
-        estimatedDays,
-        active: true,
-      };
-      setServices([...services, newService]);
-      toast.success('Paket layanan baru berhasil ditambahkan!');
+    const record: Omit<ServicePackage, 'id'> = {
+      title,
+      startingPrice: Number(startingPrice),
+      description,
+      features: featureList,
+      estimatedDays,
+      active: true,
+    };
+
+    try {
+      setSaving(true);
+      await setDocById('services', id, record);
+      toast.success(
+        editingId
+          ? 'Paket layanan berhasil diperbarui!'
+          : 'Paket layanan baru berhasil ditambahkan!'
+      );
+      setIsModalOpen(false);
+      await loadServices();
+    } catch (err: any) {
+      toast.error('Gagal menyimpan layanan: ' + (err?.message ?? 'Unknown error'));
+    } finally {
+      setSaving(false);
     }
-
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setServices(services.filter(s => s.id !== id));
-    toast.success('Layanan berhasil dihapus!');
+  const handleDelete = async (id: string) => {
+    if (!confirm('Yakin ingin menghapus layanan ini?')) return;
+    try {
+      await deleteDocById('services', id);
+      toast.success('Layanan berhasil dihapus!');
+      await loadServices();
+    } catch (err: any) {
+      toast.error('Gagal menghapus layanan: ' + (err?.message ?? 'Unknown error'));
+    }
   };
 
   return (
@@ -129,43 +138,65 @@ export default function AdminServicesPage() {
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service) => (
-          <div key={service.id} className="p-6 rounded-2xl bg-white border border-gray-200 shadow-xs flex flex-col justify-between hover:border-blue-500 transition-all space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="badge-primary">{service.estimatedDays}</span>
-                <span className="badge-success">Aktif</span>
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        </div>
+      ) : services.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 text-center text-gray-400 gap-3">
+          <p className="text-sm font-medium">Belum ada paket layanan.</p>
+          <p className="text-xs">Klik &quot;Tambah Paket Layanan&quot; untuk menambahkan yang pertama.</p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service) => (
+            <div
+              key={service.id}
+              className="p-6 rounded-2xl bg-white border border-gray-200 shadow-xs flex flex-col justify-between hover:border-blue-500 transition-all space-y-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="badge-primary">{service.estimatedDays}</span>
+                  <span className={service.active ? 'badge-success' : 'badge-secondary'}>
+                    {service.active ? 'Aktif' : 'Nonaktif'}
+                  </span>
+                </div>
+
+                <h3 className="font-bold text-gray-900 text-lg leading-snug">{service.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">{service.description}</p>
+
+                <div className="text-xl font-black text-blue-600 pt-2 border-t border-gray-100">
+                  Mulai Rp {Number(service.startingPrice).toLocaleString('id-ID')}
+                </div>
+
+                <ul className="space-y-2 pt-2 text-xs text-gray-700 font-medium">
+                  {service.features.map((f, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <h3 className="font-bold text-gray-900 text-lg leading-snug">{service.title}</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">{service.description}</p>
-              
-              <div className="text-xl font-black text-blue-600 pt-2 border-t border-gray-100">
-                Mulai Rp {service.startingPrice.toLocaleString('id-ID')}
+              <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => handleOpenEdit(service)}
+                  className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1"
+                >
+                  <Edit2 className="w-3.5 h-3.5" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(service.id)}
+                  className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Hapus
+                </button>
               </div>
-
-              <ul className="space-y-2 pt-2 text-xs text-gray-700 font-medium">
-                {service.features.map((f, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-
-            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
-              <button onClick={() => handleOpenEdit(service)} className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1">
-                <Edit2 className="w-3.5 h-3.5" /> Edit
-              </button>
-              <button onClick={() => handleDelete(service.id)} className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold flex items-center gap-1">
-                <Trash2 className="w-3.5 h-3.5" /> Hapus
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Modal Add / Edit Service */}
       {isModalOpen && (
@@ -234,8 +265,22 @@ export default function AdminServicesPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary py-2">Batal</button>
-                <button type="submit" className="btn-primary py-2 px-5">Simpan Layanan</button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  disabled={saving}
+                  className="btn-secondary py-2"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary py-2 px-5 flex items-center gap-2"
+                >
+                  {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Simpan Layanan
+                </button>
               </div>
             </form>
           </div>
