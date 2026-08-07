@@ -2,9 +2,10 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lock, Mail, ShieldCheck, ArrowRight, Key, User, Eye, EyeOff, CheckCircle2, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, ArrowRight, User, Eye, EyeOff, CheckCircle2, ArrowLeft, ExternalLink } from 'lucide-react';
 import { signIn, createUser, resetPassword, updatePassword } from '@/lib/supabase/auth';
-import { setDocById } from '@/lib/supabase/database';
+import { setDocById, getCollection, updateDocById } from '@/lib/supabase/database';
+import { supabase } from '@/lib/supabase/config';
 import toast from 'react-hot-toast';
 
 function LoginForm() {
@@ -13,9 +14,9 @@ function LoginForm() {
   const initialTab = initialTabParam === 'register' ? 'register' : initialTabParam === 'reset-password' ? 'reset-password' : 'login';
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot' | 'reset-password'>(initialTab);
 
-  // Form states
-  const [email, setEmail] = useState('admin@duniadigitalia.com');
-  const [password, setPassword] = useState('admin123');
+  // Form states — EMPTY by default
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,9 +38,11 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
+    const emailClean = email.trim().toLowerCase();
+
     // 1. Email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(emailClean)) {
       toast.error('Format email tidak valid! Contoh: nama@domain.com');
       setLoading(false);
       return;
@@ -57,32 +60,71 @@ function LoginForm() {
 
     try {
       if (activeTab === 'login') {
+        let authenticatedUser: any = null;
+
+        // Try Supabase Auth first
         try {
-          await signIn(email, password);
-        } catch (err) {
-          console.warn('Supabase Auth fallback active for local testing');
+          const authRes = await signIn(emailClean, password);
+          if (authRes?.user) {
+            authenticatedUser = {
+              email: emailClean,
+              displayName: authRes.user.user_metadata?.display_name || emailClean.split('@')[0],
+              role: 'Customer',
+            };
+          }
+        } catch (authErr: any) {
+          console.warn('Supabase Auth sign-in failed, checking database user records...');
         }
-        localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Admin Utama' }));
+
+        // If Supabase Auth didn't authenticate, check the database `users` table
+        if (!authenticatedUser) {
+          const { data: dbUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', emailClean)
+            .maybeSingle();
+
+          if (dbUser) {
+            // STRICT PASSWORD VERIFICATION
+            if (dbUser.password && dbUser.password !== password) {
+              toast.error('Password yang Anda masukkan salah! Silakan coba lagi.');
+              setLoading(false);
+              return;
+            }
+            authenticatedUser = {
+              email: emailClean,
+              displayName: dbUser.name || emailClean.split('@')[0],
+              role: dbUser.role || 'Customer',
+            };
+          } else {
+            toast.error('Email atau password Anda salah. Silakan periksa kembali!');
+            setLoading(false);
+            return;
+          }
+        }
+
+        localStorage.setItem('admin_demo_user', JSON.stringify(authenticatedUser));
         toast.success('Berhasil masuk ke Dashboard!');
         router.replace(redirectDest);
       } else if (activeTab === 'register') {
         try {
-          await createUser(email, password, displayName || 'Pengguna Baru');
+          await createUser(emailClean, password, displayName || 'Pengguna Baru');
         } catch (err) {
-          console.warn('Supabase Auth fallback register for local testing');
+          console.warn('Supabase Auth register fallback');
         }
 
         const uId = `user-${Date.now()}`;
-        await setDocById('users', uId, {
+        const newUserRecord = {
           name: displayName || 'Pengguna Baru',
-          email: email.toLowerCase(),
+          email: emailClean,
           role: 'Customer',
           password: password,
           joinedDate: new Date().toLocaleDateString('id-ID'),
           ordersCount: 0,
-        });
+        };
+        await setDocById('users', uId, newUserRecord);
 
-        localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Pengguna Baru' }));
+        localStorage.setItem('admin_demo_user', JSON.stringify({ email: emailClean, displayName: displayName || 'Pengguna Baru', role: 'Customer' }));
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
         router.replace(redirectDest);
       }
@@ -97,24 +139,24 @@ function LoginForm() {
   // Step 1: Send Official Supabase Password Reset Email
   const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    const emailClean = email.trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(emailClean)) {
       toast.error('Masukkan alamat email terdaftar yang valid!');
       return;
     }
 
     setLoading(true);
     try {
-      await resetPassword(email);
+      await resetPassword(emailClean);
       setResetEmailSent(true);
-      toast.success(`Link pemulihan password telah dikirim ke email ${email}. Silakan cek kotak masuk/spam Gmail Anda!`, {
+      toast.success(`Link pemulihan password telah dikirim ke email ${emailClean}. Silakan cek kotak masuk/spam Gmail Anda!`, {
         duration: 8000,
       });
     } catch (err: any) {
       console.error('Reset password error:', err);
-      // Even if fallback, show success instruction
       setResetEmailSent(true);
-      toast.success(`Link pemulihan password telah dikirim ke email ${email}. Silakan cek kotak masuk/spam Gmail Anda!`, {
+      toast.success(`Link pemulihan password telah dikirim ke email ${emailClean}. Silakan cek kotak masuk/spam Gmail Anda!`, {
         duration: 8000,
       });
     } finally {
@@ -143,6 +185,19 @@ function LoginForm() {
         console.warn('Supabase updatePassword fallback');
       }
 
+      // Update password in database `users` table as well so old password no longer works
+      if (email) {
+        const { data: dbUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', email.trim().toLowerCase())
+          .maybeSingle();
+
+        if (dbUser?.id) {
+          await updateDocById('users', dbUser.id, { password: newPassword });
+        }
+      }
+
       setPassword(newPassword);
       setActiveTab('login');
       setNewPassword('');
@@ -155,14 +210,6 @@ function LoginForm() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemoCredentials = () => {
-    setEmail('admin@duniadigitalia.com');
-    setPassword('admin123');
-    localStorage.setItem('admin_demo_user', JSON.stringify({ email: 'admin@duniadigitalia.com', displayName: 'Admin Utama' }));
-    toast.success('Kredensial Demo Admin Dipasang!');
-    router.replace('/dashboard');
   };
 
   return (
@@ -190,8 +237,8 @@ function LoginForm() {
             type="button"
             onClick={() => {
               setActiveTab('login');
-              setEmail('admin@duniadigitalia.com');
-              setPassword('admin123');
+              setEmail('');
+              setPassword('');
             }}
             className={`py-2 rounded-xl transition-all ${
               activeTab === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
@@ -211,27 +258,6 @@ function LoginForm() {
             }`}
           >
             Daftar Akun Baru
-          </button>
-        </div>
-      )}
-
-      {/* Demo Credentials Info Box */}
-      {activeTab === 'login' && (
-        <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs space-y-2">
-          <div className="flex items-center gap-1.5 font-bold text-blue-900">
-            <Key className="w-4 h-4 text-blue-600" />
-            <span>Kredensial Login Admin Demo:</span>
-          </div>
-          <div className="space-y-1 text-blue-950 font-medium pl-5">
-            <p>• Email: <strong className="font-bold select-all">admin@duniadigitalia.com</strong></p>
-            <p>• Password: <strong className="font-bold select-all">admin123</strong></p>
-          </div>
-          <button
-            type="button"
-            onClick={fillDemoCredentials}
-            className="w-full mt-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" /> 1-Klik Masuk Sebagai Admin Demo
           </button>
         </div>
       )}
@@ -410,7 +436,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="budi@example.com"
+                placeholder="nama@example.com"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
               />
             </div>
@@ -460,7 +486,7 @@ function LoginForm() {
             {loading
               ? 'Memproses...'
               : activeTab === 'login'
-              ? 'Masuk Dashboard Admin'
+              ? 'Masuk Dashboard'
               : 'Daftar Akun Baru'}
             <ArrowRight className="w-4 h-4" />
           </button>
