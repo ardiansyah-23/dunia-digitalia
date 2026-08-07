@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ExternalLink, CheckCircle2, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
+import { getCollection } from '@/lib/supabase/database';
 
 const PORTFOLIO_ITEMS = [
   {
@@ -36,10 +37,28 @@ const PORTFOLIO_ITEMS = [
 
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [projects, setProjects] = useState<any[]>(PORTFOLIO_ITEMS);
+
+  useEffect(() => {
+    getCollection<any>('projects').then((data) => {
+      if (data && data.length > 0) {
+        // Map database fields to what UI expects
+        const mapped = data.map((p) => ({
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          description: p.description,
+          tech: p.tags || [],
+          image: p.images?.[0] || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+        }));
+        setProjects(mapped);
+      }
+    }).catch(console.error);
+  }, []);
 
   const filtered = activeCategory === 'All'
-    ? PORTFOLIO_ITEMS
-    : PORTFOLIO_ITEMS.filter(p => p.category === activeCategory);
+    ? projects
+    : projects.filter(p => p.category === activeCategory);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
@@ -97,7 +116,7 @@ export default function PortfolioPage() {
                     <p className="text-xs text-gray-600 leading-relaxed">{item.description}</p>
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {item.tech.map((t) => (
+                      {Array.isArray(item.tech) && (item.tech as string[]).map((t: string) => (
                         <span key={t} className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-100 text-gray-700 border border-gray-200">
                           {t}
                         </span>
