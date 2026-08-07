@@ -7,6 +7,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
 import { COMPANY_INFO } from '@/lib/constants/nav';
+import { setDocById } from '@/lib/supabase/database';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -16,18 +17,39 @@ export default function ContactPage() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!name || !email || !message) {
+      toast.error('Mohon lengkapi semua field wajib!');
+      return;
+    }
 
-    setTimeout(() => {
-      setLoading(false);
+    setLoading(true);
+    const id = `msg-${Date.now()}`;
+    const record = {
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      read: false,
+      replied: false,
+      created_at: new Date().toISOString(),
+    };
+
+    try {
+      await setDocById('messages', id, record);
       toast.success('Pesan Anda berhasil dikirim! Tim kami akan merespons dalam 1x24 jam.');
       setName('');
       setEmail('');
       setPhone('');
       setMessage('');
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error('Gagal mengirim pesan. Silakan coba lagi atau gunakan chat WhatsApp.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
