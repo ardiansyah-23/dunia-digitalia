@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  verification: {
+    google: 'googled2a52a0b52a44c78',
+  },
   openGraph: {
     type: 'website',
     locale: 'id_ID',
