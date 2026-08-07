@@ -2,8 +2,9 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lock, Mail, ShieldCheck, ArrowRight, Key, User } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, ArrowRight, Key, User, Eye, EyeOff } from 'lucide-react';
 import { signIn, createUser } from '@/lib/supabase/auth';
+import { setDocById } from '@/lib/supabase/database';
 import toast from 'react-hot-toast';
 
 function LoginForm() {
@@ -15,6 +16,7 @@ function LoginForm() {
   const [email, setEmail] = useState('admin@duniadigitalia.com');
   const [password, setPassword] = useState('admin123');
   const [displayName, setDisplayName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -22,22 +24,50 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
+    // 1. Email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Format email tidak valid! Contoh: nama@domain.com');
+      setLoading(false);
+      return;
+    }
+
+    // 2. Password length check
+    if (password.length < 6) {
+      toast.error('Password minimal harus 6 karakter!');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (activeTab === 'login') {
         try {
           await signIn(email, password);
         } catch (err) {
-          console.warn('Firebase Auth fallback active for local testing');
+          console.warn('Supabase Auth fallback active for local testing');
         }
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Admin Utama' }));
-        toast.success('Berhasil masuk ke Dashboard Admin!');
+        toast.success('Berhasil masuk ke Dashboard!');
         router.push('/dashboard');
       } else {
+        // Register Tab
         try {
           await createUser(email, password, displayName || 'Pengguna Baru');
         } catch (err) {
-          console.warn('Firebase Auth fallback register for local testing');
+          console.warn('Supabase Auth fallback register for local testing');
         }
+
+        // Insert new user record into the 'users' database table
+        const uId = `user-${Date.now()}`;
+        await setDocById('users', uId, {
+          name: displayName || 'Pengguna Baru',
+          email: email.toLowerCase(),
+          role: 'Customer',
+          password: password, // Store password so admin can view/change it
+          joinedDate: new Date().toLocaleDateString('id-ID'),
+          ordersCount: 0,
+        });
+
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Pengguna Baru' }));
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
         router.push('/dashboard');
@@ -73,7 +103,11 @@ function LoginForm() {
       <div className="grid grid-cols-2 p-1 bg-gray-100 rounded-2xl border border-gray-200 text-xs font-bold">
         <button
           type="button"
-          onClick={() => setActiveTab('login')}
+          onClick={() => {
+            setActiveTab('login');
+            setEmail('admin@duniadigitalia.com');
+            setPassword('admin123');
+          }}
           className={`py-2 rounded-xl transition-all ${
             activeTab === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
@@ -82,7 +116,11 @@ function LoginForm() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('register')}
+          onClick={() => {
+            setActiveTab('register');
+            setEmail('');
+            setPassword('');
+          }}
           className={`py-2 rounded-xl transition-all ${
             activeTab === 'register' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
           }`}
@@ -92,23 +130,25 @@ function LoginForm() {
       </div>
 
       {/* Demo Credentials Info Box */}
-      <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs space-y-2">
-        <div className="flex items-center gap-1.5 font-bold text-blue-900">
-          <Key className="w-4 h-4 text-blue-600" />
-          <span>Kredensial Login Admin Demo:</span>
+      {activeTab === 'login' && (
+        <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs space-y-2">
+          <div className="flex items-center gap-1.5 font-bold text-blue-900">
+            <Key className="w-4 h-4 text-blue-600" />
+            <span>Kredensial Login Admin Demo:</span>
+          </div>
+          <div className="space-y-1 text-blue-950 font-medium pl-5">
+            <p>• Email: <strong className="font-bold select-all">admin@duniadigitalia.com</strong></p>
+            <p>• Password: <strong className="font-bold select-all">admin123</strong></p>
+          </div>
+          <button
+            type="button"
+            onClick={fillDemoCredentials}
+            className="w-full mt-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" /> 1-Klik Masuk Sebagai Admin Demo
+          </button>
         </div>
-        <div className="space-y-1 text-blue-950 font-medium pl-5">
-          <p>• Email: <strong className="font-bold select-all">admin@duniadigitalia.com</strong></p>
-          <p>• Password: <strong className="font-bold select-all">admin123</strong></p>
-        </div>
-        <button
-          type="button"
-          onClick={fillDemoCredentials}
-          className="w-full mt-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-        >
-          <ShieldCheck className="w-3.5 h-3.5" /> 1-Klik Masuk Sebagai Admin Demo
-        </button>
-      </div>
+      )}
 
       {/* Login / Register Form */}
       <form onSubmit={handleLogin} className="space-y-4">
@@ -139,7 +179,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="admin@duniadigitalia.com"
+              placeholder="budi@example.com"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
             />
           </div>
@@ -150,13 +190,20 @@ function LoginForm() {
           <div className="relative">
             <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 

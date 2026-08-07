@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, UserPlus, Search, Edit2, Trash2, Loader2, CheckCircle2 } from 'lucide-react';
+import { Shield, UserPlus, Search, Edit2, Trash2, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getCollection, setDocById, deleteDocById } from '@/lib/supabase/database';
 
@@ -10,6 +10,7 @@ interface UserItem {
   name: string;
   email: string;
   role: 'Super Admin' | 'Admin' | 'Customer';
+  password?: string;
   joinedDate: string;
   ordersCount: number;
 }
@@ -26,6 +27,8 @@ export default function AdminUsersPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'Super Admin' | 'Admin' | 'Customer'>('Customer');
+  const [password, setPassword] = useState('user123');
+  const [showPassword, setShowPassword] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -48,6 +51,8 @@ export default function AdminUsersPage() {
     setName('');
     setEmail('');
     setRole('Customer');
+    setPassword('user123');
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -56,6 +61,8 @@ export default function AdminUsersPage() {
     setName(u.name);
     setEmail(u.email);
     setRole(u.role);
+    setPassword(u.password || 'user123');
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -66,12 +73,26 @@ export default function AdminUsersPage() {
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Format email tidak valid! Contoh: nama@domain.com');
+      return;
+    }
+
+    // Password length validation
+    if (password.length < 6) {
+      toast.error('Password minimal 6 karakter!');
+      return;
+    }
+
     setSaving(true);
-    const id = editingUser ? editingUser.id : Date.now().toString();
+    const id = editingUser ? editingUser.id : `user-${Date.now()}`;
     const record = {
       name,
-      email,
+      email: email.toLowerCase(),
       role,
+      password,
       joinedDate: editingUser ? editingUser.joinedDate : new Date().toLocaleDateString('id-ID'),
       ordersCount: editingUser ? editingUser.ordersCount : 0,
     };
@@ -107,17 +128,21 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Manajemen Pengguna & Akses Admin</h1>
           <p className="text-xs text-gray-500">Kelola peran (role) pengguna dan daftar pelanggan terdaftar.</p>
         </div>
-        <button onClick={handleOpenAdd} className="btn-primary text-xs px-4 py-2.5 flex items-center gap-2">
+        <button
+          onClick={handleOpenAdd}
+          className="btn-primary text-xs px-4 py-2.5 flex items-center gap-2"
+        >
           <UserPlus className="w-4 h-4" /> Tambah User Baru
         </button>
       </div>
 
-      {/* Filter & Search */}
+      {/* Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
         <div className="relative w-full max-w-xs">
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -132,23 +157,21 @@ export default function AdminUsersPage() {
         <span className="text-xs font-semibold text-gray-500">Total: {filtered.length} User</span>
       </div>
 
-      {/* Table */}
+      {/* Users Table */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-gray-400">
-            <Loader2 className="w-6 h-6 animate-spin mr-2" />
-            <span className="text-xs">Memuat data pengguna...</span>
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <p className="text-sm font-medium">Belum ada pengguna terdaftar.</p>
-          </div>
+          <div className="p-8 text-center text-gray-400 text-xs">Belum ada pengguna terdaftar.</div>
         ) : (
           <table className="w-full text-left text-xs text-gray-600">
             <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
               <tr>
                 <th className="p-4">Nama Pengguna</th>
                 <th className="p-4">Email</th>
+                <th className="p-4">Password</th>
                 <th className="p-4">Peran (Role)</th>
                 <th className="p-4">Tanggal Bergabung</th>
                 <th className="p-4">Total Pesanan</th>
@@ -159,10 +182,13 @@ export default function AdminUsersPage() {
               {filtered.map((u) => (
                 <tr key={u.id} className="hover:bg-gray-50">
                   <td className="p-4 font-bold text-gray-900">{u.name}</td>
-                  <td className="p-4 font-medium text-gray-700">{u.email}</td>
+                  <td className="p-4 font-semibold text-gray-700">{u.email}</td>
+                  <td className="p-4 font-mono text-gray-500 font-medium select-all">
+                    {u.password || '••••••'}
+                  </td>
                   <td className="p-4">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 w-fit ${
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         u.role === 'Super Admin'
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
                           : u.role === 'Admin'
@@ -227,6 +253,27 @@ export default function AdminUsersPage() {
                   placeholder="budi@example.com"
                   className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
                 />
+              </div>
+
+              <div>
+                <label className="block font-bold text-gray-700 mb-1">Password Akun *</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Minimal 6 karakter"
+                    className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div>
