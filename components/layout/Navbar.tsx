@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingBag, Menu, X, ChevronDown, User, Sparkles, Layout, Code, Globe, BookOpen } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { NAV_LINKS } from '@/lib/constants/nav';
-import { CATEGORIES_DATA } from '@/lib/constants/categories';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
@@ -23,7 +21,6 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileOpen(false);
-    setMegaOpen(false);
   }, [pathname]);
 
   return (
@@ -61,77 +58,20 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-1">
-            <Link
-              href="/"
-              className={`px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
-                pathname === '/' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              Home
-            </Link>
-
-            {/* Mega Menu Trigger */}
-            <div
-              className="relative"
-              onMouseEnter={() => setMegaOpen(true)}
-              onMouseLeave={() => setMegaOpen(false)}
-            >
-              <button
-                className={`inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
-                  pathname.startsWith('/produk') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-              >
-                Produk
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-              </button>
-
-              {/* Mega Menu Content */}
-              <AnimatePresence>
-                {megaOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full left-0 w-[580px] p-5 bg-white rounded-2xl border border-gray-200 shadow-xl grid grid-cols-2 gap-3 z-50 mt-1"
-                  >
-                    {CATEGORIES_DATA.slice(0, 8).map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/produk?kategori=${cat.slug}`}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-blue-50/60 transition-colors group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                          <Layout className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{cat.name}</h4>
-                          <p className="text-[11px] text-gray-500 line-clamp-1">{cat.description}</p>
-                        </div>
-                      </Link>
-                    ))}
-                    <div className="col-span-2 pt-3 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs text-gray-500 font-medium">Jelajahi 100+ produk digital</span>
-                      <Link href="/produk" className="text-xs font-bold text-blue-600 hover:underline">
-                        Lihat Semua Produk →
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {NAV_LINKS.slice(2).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
-                  pathname === link.href ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
+                    isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Auth Buttons */}
