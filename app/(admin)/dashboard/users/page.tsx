@@ -22,6 +22,11 @@ export default function AdminUsersPage() {
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+
+  const toggleShowPassword = (id: string) => {
+    setShowPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // Form states
   const [name, setName] = useState('');
@@ -171,26 +176,39 @@ export default function AdminUsersPage() {
         ) : filtered.length === 0 ? (
           <div className="p-8 text-center text-gray-400 text-xs">Belum ada pengguna terdaftar.</div>
         ) : (
-          <table className="w-full text-left text-xs text-gray-600">
-            <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
-              <tr>
-                <th className="p-4">Nama Pengguna</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Password</th>
-                <th className="p-4">Peran (Role)</th>
-                <th className="p-4">Tanggal Bergabung</th>
-                <th className="p-4">Total Pesanan</th>
-                <th className="p-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filtered.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50">
-                  <td className="p-4 font-bold text-gray-900">{u.name}</td>
-                  <td className="p-4 font-semibold text-gray-700">{u.email}</td>
-                  <td className="p-4 font-mono text-gray-500 font-medium select-all">
-                    {u.password || '••••••'}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-gray-600 min-w-[700px]">
+              <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
+                <tr>
+                  <th className="p-4">Nama Pengguna</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Password</th>
+                  <th className="p-4">Peran (Role)</th>
+                  <th className="p-4">Tanggal Bergabung</th>
+                  <th className="p-4">Total Pesanan</th>
+                  <th className="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filtered.map((u) => (
+                  <tr key={u.id} className="hover:bg-gray-50">
+                    <td className="p-4 font-bold text-gray-900">{u.name}</td>
+                    <td className="p-4 font-semibold text-gray-700">{u.email}</td>
+                    <td className="p-4 font-mono text-gray-500 font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{showPasswords[u.id] ? u.password || '••••••••' : '••••••••'}</span>
+                        {u.password && (
+                          <button
+                            type="button"
+                            onClick={() => toggleShowPassword(u.id)}
+                            className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title={showPasswords[u.id] ? 'Sembunyikan Password' : 'Lihat Password'}
+                          >
+                            {showPasswords[u.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   <td className="p-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
@@ -224,7 +242,8 @@ export default function AdminUsersPage() {
               ))}
             </tbody>
           </table>
-        )}
+        </div>
+      )}
       </div>
 
       {/* Modal */}
