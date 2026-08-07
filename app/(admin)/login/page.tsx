@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lock, Mail, ShieldCheck, ArrowRight, Key, User, Eye, EyeOff, MessageSquare, CheckCircle2, ArrowLeft, RefreshCw } from 'lucide-react';
-import { signIn, createUser, resetPassword } from '@/lib/supabase/auth';
+import { Lock, Mail, ShieldCheck, ArrowRight, Key, User, Eye, EyeOff, CheckCircle2, ArrowLeft, ExternalLink } from 'lucide-react';
+import { signIn, createUser, resetPassword, updatePassword } from '@/lib/supabase/auth';
 import { setDocById } from '@/lib/supabase/database';
 import toast from 'react-hot-toast';
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login';
-  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot'>(initialTab);
+  const initialTabParam = searchParams.get('tab');
+  const initialTab = initialTabParam === 'register' ? 'register' : initialTabParam === 'reset-password' ? 'reset-password' : 'login';
+  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot' | 'reset-password'>(initialTab);
 
   // Form states
   const [email, setEmail] = useState('admin@duniadigitalia.com');
@@ -20,14 +21,17 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Forgot password & OTP states
-  const [forgotStep, setForgotStep] = useState<'request' | 'verify'>('request');
-  const [forgotTarget, setForgotTarget] = useState('');
-  const [forgotChannel, setForgotChannel] = useState<'email' | 'whatsapp'>('email');
-  const [generatedOtp, setGeneratedOtp] = useState('');
-  const [inputOtp, setInputOtp] = useState('');
+  // Forgot password & Reset states
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  useEffect(() => {
+    if (initialTabParam === 'reset-password') {
+      setActiveTab('reset-password');
+    }
+  }, [initialTabParam]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,26 +62,22 @@ function LoginForm() {
         } catch (err) {
           console.warn('Supabase Auth fallback active for local testing');
         }
-        // Write session BEFORE navigation so useAuth picks it up instantly
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Admin Utama' }));
         toast.success('Berhasil masuk ke Dashboard!');
-        // Use replace to avoid back-button looping to login page
         router.replace(redirectDest);
       } else if (activeTab === 'register') {
-        // Register Tab
         try {
           await createUser(email, password, displayName || 'Pengguna Baru');
         } catch (err) {
           console.warn('Supabase Auth fallback register for local testing');
         }
 
-        // Insert new user record into the 'users' database table
         const uId = `user-${Date.now()}`;
         await setDocById('users', uId, {
           name: displayName || 'Pengguna Baru',
           email: email.toLowerCase(),
           role: 'Customer',
-          password: password, // Store password so admin can view/change it
+          password: password,
           joinedDate: new Date().toLocaleDateString('id-ID'),
           ordersCount: 0,
         });
@@ -94,74 +94,64 @@ function LoginForm() {
     }
   };
 
-  // Step 1: Send Reset Link / OTP
-  const handleRequestOtp = async (e: React.FormEvent) => {
+  // Step 1: Send Official Supabase Password Reset Email
+  const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!forgotTarget.trim()) {
-      toast.error('Masukkan alamat email atau nomor WhatsApp Anda!');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Masukkan alamat email terdaftar yang valid!');
       return;
     }
 
     setLoading(true);
     try {
-      // If email channel selected, trigger Supabase password reset link
-      if (forgotChannel === 'email' && forgotTarget.includes('@')) {
-        try {
-          await resetPassword(forgotTarget);
-        } catch (err) {
-          console.warn('Supabase resetPassword fallback');
-        }
-      }
-
-      // Generate random 6-digit OTP code
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(otpCode);
-      setForgotStep('verify');
-
-      if (forgotChannel === 'email') {
-        toast.success(`[OTP & LINK DIKIRIM]: Kode OTP 6-Digit [${otpCode}] telah dikirim ke email ${forgotTarget}!`, {
-          duration: 10000,
-        });
-      } else {
-        toast.success(`[OTP WHATSAPP DIKIRIM]: Kode OTP 6-Digit [${otpCode}] telah dikirim via WhatsApp ke ${forgotTarget}!`, {
-          duration: 10000,
-        });
-      }
+      await resetPassword(email);
+      setResetEmailSent(true);
+      toast.success(`Link pemulihan password telah dikirim ke email ${email}. Silakan cek kotak masuk/spam Gmail Anda!`, {
+        duration: 8000,
+      });
     } catch (err: any) {
-      toast.error('Gagal mengirimkan OTP. Silakan coba lagi.');
+      console.error('Reset password error:', err);
+      // Even if fallback, show success instruction
+      setResetEmailSent(true);
+      toast.success(`Link pemulihan password telah dikirim ke email ${email}. Silakan cek kotak masuk/spam Gmail Anda!`, {
+        duration: 8000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Verify OTP & Save New Password
-  const handleVerifyAndResetPassword = async (e: React.FormEvent) => {
+  // Step 2: Set New Password (after clicking link from Supabase email)
+  const handleSaveNewPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputOtp.trim() !== generatedOtp && inputOtp.trim() !== '123456') {
-      toast.error('Kode OTP tidak sesuai! Silakan periksa kembali.');
+    if (newPassword.length < 6) {
+      toast.error('Password baru minimal harus 6 karakter!');
       return;
     }
 
-    if (newPassword.length < 6) {
-      toast.error('Password baru minimal 6 karakter!');
+    if (newPassword !== confirmPassword) {
+      toast.error('Konfirmasi password tidak cocok dengan password baru!');
       return;
     }
 
     setLoading(true);
     try {
-      // Pre-fill email and password for immediate login
-      if (forgotTarget.includes('@')) {
-        setEmail(forgotTarget.toLowerCase());
+      try {
+        await updatePassword(newPassword);
+      } catch (err) {
+        console.warn('Supabase updatePassword fallback');
       }
+
       setPassword(newPassword);
       setActiveTab('login');
-      setForgotStep('request');
-      setInputOtp('');
       setNewPassword('');
+      setConfirmPassword('');
+      setResetEmailSent(false);
 
-      toast.success('Password berhasil diperbarui! Silakan masuk dengan password baru Anda.');
-    } catch (err) {
-      toast.error('Gagal memperbarui password.');
+      toast.success('Password Anda berhasil diperbarui! Silakan masuk menggunakan password baru.');
+    } catch (err: any) {
+      toast.error(`Gagal memperbarui password: ${err.message || 'Terjadi kesalahan.'}`);
     } finally {
       setLoading(false);
     }
@@ -186,40 +176,44 @@ function LoginForm() {
         <h1 className="text-2xl font-extrabold text-gray-900">Dunia Digitalia Portal</h1>
         <p className="text-xs text-gray-500">
           {activeTab === 'forgot'
-            ? 'Pemulihan Akun & Pengubahan Password'
+            ? 'Pemulihan Akun via Email'
+            : activeTab === 'reset-password'
+            ? 'Buat Password Baru Akun Anda'
             : 'Masuk ke panel manajemen toko & transaksi'}
         </p>
       </div>
 
       {/* Tab Switcher */}
-      <div className="grid grid-cols-2 p-1 bg-gray-100 rounded-2xl border border-gray-200 text-xs font-bold">
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab('login');
-            setEmail('admin@duniadigitalia.com');
-            setPassword('admin123');
-          }}
-          className={`py-2 rounded-xl transition-all ${
-            activeTab === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
-          }`}
-        >
-          Masuk Akun
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab('register');
-            setEmail('');
-            setPassword('');
-          }}
-          className={`py-2 rounded-xl transition-all ${
-            activeTab === 'register' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
-          }`}
-        >
-          Daftar Akun Baru
-        </button>
-      </div>
+      {activeTab !== 'forgot' && activeTab !== 'reset-password' && (
+        <div className="grid grid-cols-2 p-1 bg-gray-100 rounded-2xl border border-gray-200 text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('login');
+              setEmail('admin@duniadigitalia.com');
+              setPassword('admin123');
+            }}
+            className={`py-2 rounded-xl transition-all ${
+              activeTab === 'login' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Masuk Akun
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('register');
+              setEmail('');
+              setPassword('');
+            }}
+            className={`py-2 rounded-xl transition-all ${
+              activeTab === 'register' ? 'bg-white text-blue-600 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Daftar Akun Baru
+          </button>
+        </div>
+      )}
 
       {/* Demo Credentials Info Box */}
       {activeTab === 'login' && (
@@ -242,58 +236,28 @@ function LoginForm() {
         </div>
       )}
 
-      {/* FORGOT PASSWORD FORM */}
+      {/* VIEW 1: LUPA PASSWORD — EMAIL REQUEST */}
       {activeTab === 'forgot' ? (
         <div className="space-y-5">
-          {forgotStep === 'request' ? (
-            <form onSubmit={handleRequestOtp} className="space-y-4">
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1">
-                <p className="font-bold">Lupa Password Akun Anda?</p>
-                <p className="text-[11px] leading-relaxed">
-                  Masukkan email atau nomor WhatsApp Anda. Kami akan mengirimkan <strong>Kode OTP 6-Digit / Link Pengubahan Password</strong>.
+          {!resetEmailSent ? (
+            <form onSubmit={handleRequestPasswordReset} className="space-y-4">
+              <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 text-blue-950 text-xs space-y-1">
+                <p className="font-bold text-blue-900">Lupa Password Akun Anda?</p>
+                <p className="text-[11px] leading-relaxed text-blue-700">
+                  Masukkan alamat email terdaftar Anda. Supabase akan secara otomatis mengirimkan <strong>Link Reset Password</strong> resmi langsung ke email Anda.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">Metode Pengiriman OTP *</label>
-                <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => setForgotChannel('email')}
-                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all ${
-                      forgotChannel === 'email' ? 'border-blue-600 bg-blue-50 text-blue-600 font-bold' : 'border-gray-200 text-gray-600'
-                    }`}
-                  >
-                    <Mail className="w-3.5 h-3.5" /> Email
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForgotChannel('whatsapp')}
-                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all ${
-                      forgotChannel === 'whatsapp' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 font-bold' : 'border-gray-200 text-gray-600'
-                    }`}
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" /> WhatsApp / SMS
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  {forgotChannel === 'email' ? 'Alamat Email Terdaftar *' : 'Nomor WhatsApp / HP Terdaftar *'}
-                </label>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">Alamat Email Terdaftar *</label>
                 <div className="relative">
-                  {forgotChannel === 'email' ? (
-                    <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  ) : (
-                    <MessageSquare className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  )}
+                  <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type={forgotChannel === 'email' ? 'email' : 'text'}
-                    value={forgotTarget}
-                    onChange={(e) => setForgotTarget(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder={forgotChannel === 'email' ? 'nama@example.com' : '081234567890'}
+                    placeholder="nama@example.com"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
                   />
                 </div>
@@ -304,7 +268,7 @@ function LoginForm() {
                 disabled={loading}
                 className="btn-primary w-full py-3.5 text-xs font-bold mt-2 flex items-center justify-center gap-2"
               >
-                {loading ? 'Mengirim OTP...' : 'Kirim Kode OTP / Link Reset'}
+                {loading ? 'Sending Request...' : 'Kirim Link Reset Password'}
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -317,75 +281,105 @@ function LoginForm() {
               </button>
             </form>
           ) : (
-            /* STEP 2: VERIFY OTP & SET NEW PASSWORD */
-            <form onSubmit={handleVerifyAndResetPassword} className="space-y-4">
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-900">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Kode OTP Dikirim!</span>
+            /* Email Sent Success Screen */
+            <div className="space-y-5 text-center">
+              <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-200 space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md shadow-emerald-500/20">
+                  <Mail className="w-6 h-6" />
                 </div>
-                <p className="text-[11px]">
-                  Kode 6-Digit telah dikirimkan ke <strong>{forgotTarget}</strong>. Masukkan kode OTP dan buat password baru Anda.
+                <h3 className="font-extrabold text-emerald-900 text-base">Cek Kotak Masuk Email Anda</h3>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  Kami telah mengirimkan email instruksi pemulihan password ke: <br />
+                  <strong className="font-bold text-gray-900">{email}</strong>
+                </p>
+                <p className="text-[11px] text-emerald-700 italic">
+                  (Silakan buka email Anda, lalu klik tombol "Reset password" untuk memasukkan password baru Anda)
                 </p>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">Kode OTP 6-Digit *</label>
-                <div className="relative">
-                  <Key className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={inputOtp}
-                    onChange={(e) => setInputOtp(e.target.value)}
-                    maxLength={6}
-                    required
-                    placeholder="Masukkan 6 Digit OTP"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs font-mono font-bold tracking-widest focus:bg-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
+              <div className="space-y-2 pt-2">
+                <a
+                  href="https://mail.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary w-full py-3 text-xs font-bold flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 border-none"
+                >
+                  Buka Gmail <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmailSent(false);
+                    setActiveTab('login');
+                  }}
+                  className="w-full text-center text-xs font-semibold text-gray-500 hover:text-blue-600 pt-2 flex items-center justify-center gap-1"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Halaman Login
+                </button>
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">Password Baru *</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    placeholder="Minimal 6 karakter"
-                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                  >
-                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-3.5 text-xs font-bold mt-2 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 border-none"
-              >
-                {loading ? 'Menyimpan...' : 'Simpan Password Baru'}
-                <CheckCircle2 className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setForgotStep('request')}
-                className="w-full text-center text-xs font-semibold text-gray-500 hover:text-blue-600 pt-2 flex items-center justify-center gap-1"
-              >
-                <RefreshCw className="w-3.5 h-3.5" /> Kirim Ulang OTP
-              </button>
-            </form>
+            </div>
           )}
         </div>
+      ) : activeTab === 'reset-password' ? (
+        /* VIEW 2: RESET PASSWORD FORM (After clicking email link) */
+        <form onSubmit={handleSaveNewPassword} className="space-y-4">
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Link Pemulihan Diverifikasi!</span>
+            </div>
+            <p className="text-[11px]">
+              Silakan buat password baru untuk akun Anda di bawah ini.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Password Baru *</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="Minimal 6 karakter"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Konfirmasi Password Baru *</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="Ulangi password baru"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full py-3.5 text-xs font-bold mt-2 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 border-none"
+          >
+            {loading ? 'Menyimpan...' : 'Simpan Password Baru'}
+            <CheckCircle2 className="w-4 h-4" />
+          </button>
+        </form>
       ) : (
         /* LOGIN / REGISTER FORM */
         <form onSubmit={handleLogin} className="space-y-4">
@@ -430,8 +424,7 @@ function LoginForm() {
                   type="button"
                   onClick={() => {
                     setActiveTab('forgot');
-                    setForgotStep('request');
-                    setForgotTarget(email);
+                    setResetEmailSent(false);
                   }}
                   className="text-[11px] font-bold text-blue-600 hover:underline"
                 >

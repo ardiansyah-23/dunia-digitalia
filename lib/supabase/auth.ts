@@ -29,8 +29,22 @@ export async function createUser(email: string, password: string, displayName: s
 }
 
 export async function resetPassword(email: string) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  const redirectTo = typeof window !== 'undefined'
+    ? `${window.location.origin}/login?tab=reset-password`
+    : 'https://dunia-digitalia.vercel.app/login?tab=reset-password';
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
   if (error) throw error;
+}
+
+export async function updatePassword(newPassword: string) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+  if (error) throw error;
+  return data;
 }
 
 export function onAuthChange(callback: (user: any) => void) {
