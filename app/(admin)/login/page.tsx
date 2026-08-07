@@ -49,9 +49,11 @@ function LoginForm() {
         } catch (err) {
           console.warn('Supabase Auth fallback active for local testing');
         }
+        // Write session BEFORE navigation so useAuth picks it up instantly
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Admin Utama' }));
         toast.success('Berhasil masuk ke Dashboard!');
-        router.push(redirectDest);
+        // Use replace to avoid back-button looping to login page
+        router.replace(redirectDest);
       } else {
         // Register Tab
         try {
@@ -73,7 +75,7 @@ function LoginForm() {
 
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Pengguna Baru' }));
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
-        router.push(redirectDest);
+        router.replace(redirectDest);
       }
     } catch (error: any) {
       console.error('Authentication error details:', error);
@@ -88,7 +90,7 @@ function LoginForm() {
     setPassword('admin123');
     localStorage.setItem('admin_demo_user', JSON.stringify({ email: 'admin@duniadigitalia.com', displayName: 'Admin Utama' }));
     toast.success('Kredensial Demo Admin Dipasang!');
-    router.push('/dashboard');
+    router.replace('/dashboard');
   };
 
   return (

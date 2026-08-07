@@ -1,100 +1,144 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { onAuthChange } from '@/lib/supabase/auth';
 import { supabase } from '@/lib/supabase/config';
 
+export interface AuthUser {
+  email: string;
+  displayName?: string;
+  role: 'Super Admin' | 'Admin' | 'Customer';
+}
+
 export interface AuthState {
-  user: { email: string; displayName?: string; role: 'Super Admin' | 'Admin' | 'Customer' } | null;
+  user: AuthUser | null;
   loading: boolean;
   isAuthenticated: boolean;
 }
 
+// Cache role lookups to avoid repeated Supabase queries within the same session
+const roleCache = new Map<string, { role: string; name: string }>();
+
+function resolveLocalUser(): AuthUser | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem('admin_demo_user');
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed?.email) return null;
+    // Fast-path for admin demo account — no DB query needed
+    if (parsed.email.toLowerCase() === 'admin@duniadigitalia.com') {
+      return { email: parsed.email, displayName: parsed.displayName || 'Admin Utama', role: 'Super Admin' };
+    }
+    // Return a preliminary user immediately (role resolved async below)
+    return { email: parsed.email, displayName: parsed.displayName || parsed.email, role: 'Customer' };
+  } catch {
+    return null;
+  }
+}
+
 export function useAuth(): AuthState {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  // Resolve localStorage synchronously to avoid blank flash
+  const [user, setUser] = useState<AuthUser | null>(() => resolveLocalUser());
+  const [loading, setLoading] = useState(() => {
+    // If we already resolved a user from localStorage, skip the loading state
+    return resolveLocalUser() === null;
+  });
+  const resolvedRef = useRef(false);
 
   useEffect(() => {
-    const handleUserSession = async (email: string, displayName?: string) => {
-      setLoading(true);
-      // Hardcoded fallback for the admin demo login
+    let cancelled = false;
+
+    const resolveRole = async (email: string, displayName?: string) => {
+      // Admin demo — instant, no DB call
       if (email.toLowerCase() === 'admin@duniadigitalia.com') {
-        setUser({
-          email,
-          displayName: displayName || 'Admin Utama',
-          role: 'Super Admin',
-        });
-        setLoading(false);
+        if (!cancelled) {
+          setUser({ email, displayName: displayName || 'Admin Utama', role: 'Super Admin' });
+          setLoading(false);
+          resolvedRef.current = true;
+        }
         return;
       }
 
+      // Check cache first
+      const cached = roleCache.get(email.toLowerCase());
+      if (cached) {
+        if (!cancelled) {
+          setUser({ email, displayName: cached.name || displayName || email, role: (cached.role as AuthUser['role']) || 'Customer' });
+          setLoading(false);
+          resolvedRef.current = true;
+        }
+        return;
+      }
+
+      // Query users table once
       try {
-        // Query users table for real-time role
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('users')
           .select('role, name')
           .eq('email', email)
           .maybeSingle();
 
-        if (data) {
-          setUser({
-            email,
-            displayName: data.name || displayName || email,
-            role: data.role || 'Customer',
-          });
-        } else {
-          // If user not in database, fallback to Customer
-          setUser({
-            email,
-            displayName: displayName || email,
-            role: 'Customer',
-          });
+        if (!cancelled) {
+          const role = (data?.role as AuthUser['role']) || 'Customer';
+          const name = data?.name || displayName || email;
+          roleCache.set(email.toLowerCase(), { role, name });
+          setUser({ email, displayName: name, role });
+          setLoading(false);
+          resolvedRef.current = true;
         }
-      } catch (err) {
-        console.error('Error loading user role:', err);
-        setUser({
-          email,
-          displayName: displayName || email,
-          role: 'Customer',
-        });
-      } finally {
-        setLoading(false);
+      } catch {
+        if (!cancelled) {
+          setUser({ email, displayName: displayName || email, role: 'Customer' });
+          setLoading(false);
+          resolvedRef.current = true;
+        }
       }
     };
 
-    // Check localStorage demo user first
-    const demoUserStr = typeof window !== 'undefined' ? localStorage.getItem('admin_demo_user') : null;
-    if (demoUserStr) {
-      try {
-        const demoUser = JSON.parse(demoUserStr);
-        handleUserSession(demoUser.email, demoUser.displayName);
-        return;
-      } catch (e) {
-        console.error(e);
+    // 1. Check localStorage immediately
+    const localUser = resolveLocalUser();
+    if (localUser) {
+      // If it's admin, we already have the full user — just ensure role is resolved
+      if (localUser.role === 'Super Admin') {
+        setUser(localUser);
+        setLoading(false);
+        resolvedRef.current = true;
+      } else {
+        // For non-admin, resolve actual role from DB
+        setUser(localUser); // Show immediately with preliminary role
+        setLoading(false);  // Don't block rendering
+        resolveRole(localUser.email, localUser.displayName);
       }
     }
 
+    // 2. Listen for Supabase auth state changes (covers real Supabase Auth sessions)
     const unsubscribe = onAuthChange((sbUser) => {
       if (sbUser) {
-        handleUserSession(sbUser.email || '', sbUser.user_metadata?.display_name);
+        // Only process if we haven't already resolved from localStorage
+        if (!resolvedRef.current) {
+          resolveRole(sbUser.email || '', sbUser.user_metadata?.display_name);
+        }
       } else {
-        const stored = localStorage.getItem('admin_demo_user');
-        if (stored) {
-          try {
-            const demoUser = JSON.parse(stored);
-            handleUserSession(demoUser.email, demoUser.displayName);
-          } catch {
-            setUser(null);
-            setLoading(false);
+        // No Supabase session — check localStorage fallback
+        if (!resolvedRef.current) {
+          const stored = resolveLocalUser();
+          if (stored) {
+            resolveRole(stored.email, stored.displayName);
+          } else {
+            if (!cancelled) {
+              setUser(null);
+              setLoading(false);
+            }
           }
-        } else {
-          setUser(null);
-          setLoading(false);
         }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   return { user, loading, isAuthenticated: !!user };
