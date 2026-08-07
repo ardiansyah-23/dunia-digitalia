@@ -129,6 +129,8 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${jakarta.variable} dark scroll-smooth`}>
       <head>
+        <meta name="google-site-verification" content="googled2a52a0b52a44c78" />
+        <meta name="google-site-verification" content="googled2a52a0b52a44c78.html" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
