@@ -58,8 +58,8 @@ export default function DashboardPage() {
           },
           {
             label: 'Total Pengguna Terdaftar',
-            value: `${Math.max(users.length, 12)} User`, // fallback helper
-            change: '+2 minggu ini',
+            value: `${users.length} User`,
+            change: `+${users.length} total`,
             icon: Users,
           },
         ]);

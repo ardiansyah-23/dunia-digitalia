@@ -39,6 +39,7 @@ CREATE TABLE products (
   rating NUMERIC DEFAULT 5.0,
   "reviewCount" INT DEFAULT 0,
   "isFeatured" BOOLEAN DEFAULT false,
+  "position" INT DEFAULT 0,
   "createdAt" TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -269,3 +270,14 @@ VALUES
   ('2', 'Budi Santoso', 'budi@example.com', 'Customer', '15 Jan 2026', 3),
   ('3', 'Siti Rahma', 'siti@example.com', 'Customer', '20 Jan 2026', 1)
 ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- STORAGE BUCKETS SETUP & POLICIES
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('uploads', 'uploads', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for uploads
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+CREATE POLICY "Public Access" ON storage.objects FOR ALL USING (bucket_id = 'uploads') WITH CHECK (bucket_id = 'uploads');

@@ -1,8 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
-import { Plus, Search, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Edit2, Trash2, Loader2, ArrowUp, ArrowDown } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichEditor from '@/components/admin/RichEditor';
 import toast from 'react-hot-toast';
@@ -14,6 +14,8 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [selectedCat, setSelectedCat] = useState('All');
+  const [sortBy, setSortBy] = useState('position');
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form states
@@ -32,7 +34,14 @@ export default function AdminProductsPage() {
   async function loadProducts() {
     try {
       const data = await getCollection<any>('products');
-      setProducts(data || []);
+      // Sort by position ascending initially
+      const sorted = (data || []).sort((a: any, b: any) => {
+        const posA = Number(a.position) || 0;
+        const posB = Number(b.position) || 0;
+        if (posA !== posB) return posA - posB;
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      });
+      setProducts(sorted);
     } catch (err: any) {
       console.error('Error loading products:', err);
       toast.error(`Gagal memuat produk dari database: ${err.message || 'Cek koneksi / izin RLS Supabase'}`);
@@ -76,6 +85,13 @@ export default function AdminProductsPage() {
     const id = editingId || `prod-${Date.now()}`;
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
+    // Auto calculate new position for new items (max position + 10)
+    const existingPosList = products.map(p => Number(p.position) || 0);
+    const maxPos = existingPosList.length > 0 ? Math.max(...existingPosList) : 0;
+    const position = editingId
+      ? (products.find(p => p.id === editingId)?.position || 0)
+      : maxPos + 10;
+
     const record = {
       title,
       slug,
@@ -94,6 +110,7 @@ export default function AdminProductsPage() {
       rating: editingId ? (products.find(p => p.id === editingId)?.rating || 5.0) : 5.0,
       reviewCount: editingId ? (products.find(p => p.id === editingId)?.reviewCount || 0) : 0,
       isFeatured: true,
+      position: Number(position),
       createdAt: editingId ? (products.find(p => p.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
     };
 
@@ -137,7 +154,74 @@ export default function AdminProductsPage() {
     }
   };
 
-  const filtered = products.filter(p => (p.title || '').toLowerCase().includes(search.toLowerCase()));
+  // Reorder/Position Swapping
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return;
+    const current = filteredProducts[index];
+    const prev = filteredProducts[index - 1];
+
+    const currentPos = current.position || index * 10;
+    const prevPos = prev.position || (index - 1) * 10;
+
+    try {
+      toast.loading('Memindahkan posisi produk...');
+      await setDocById('products', current.id, { ...current, position: prevPos });
+      await setDocById('products', prev.id, { ...prev, position: currentPos });
+      toast.dismiss();
+      toast.success('Urutan produk berhasil diubah!');
+      loadProducts();
+    } catch (err) {
+      toast.dismiss();
+      toast.error('Gagal mengubah urutan produk.');
+    }
+  };
+
+  const handleMoveDown = async (index: number) => {
+    if (index === filteredProducts.length - 1) return;
+    const current = filteredProducts[index];
+    const next = filteredProducts[index + 1];
+
+    const currentPos = current.position || index * 10;
+    const nextPos = next.position || (index + 1) * 10;
+
+    try {
+      toast.loading('Memindahkan posisi produk...');
+      await setDocById('products', current.id, { ...current, position: nextPos });
+      await setDocById('products', next.id, { ...next, position: currentPos });
+      toast.dismiss();
+      toast.success('Urutan produk berhasil diubah!');
+      loadProducts();
+    } catch (err) {
+      toast.dismiss();
+      toast.error('Gagal mengubah urutan produk.');
+    }
+  };
+
+  // Group, Sort, and Search
+  const filteredProducts = useMemo(() => {
+    let result = products.filter(p =>
+      (p.title || '').toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (selectedCat !== 'All') {
+      result = result.filter(p => p.category === selectedCat);
+    }
+
+    result = [...result].sort((a, b) => {
+      if (sortBy === 'position') {
+        return (Number(a.position) || 0) - (Number(b.position) || 0);
+      } else if (sortBy === 'price-asc') {
+        return (Number(a.price) || 0) - (Number(b.price) || 0);
+      } else if (sortBy === 'price-desc') {
+        return (Number(b.price) || 0) - (Number(a.price) || 0);
+      } else if (sortBy === 'sales') {
+        return (Number(b.salesCount) || 0) - (Number(a.salesCount) || 0);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [products, search, selectedCat, sortBy]);
 
   return (
     <div className="space-y-6">
@@ -163,8 +247,9 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex items-center justify-between">
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Search */}
         <div className="relative w-full max-w-xs">
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -172,10 +257,40 @@ export default function AdminProductsPage() {
             placeholder="Cari produk..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:bg-white"
           />
         </div>
-        <span className="text-xs font-semibold text-gray-500">Total: {filtered.length} Produk</span>
+
+        {/* Group and Sorting selectors */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          <div>
+            <select
+              value={selectedCat}
+              onChange={(e) => setSelectedCat(e.target.value)}
+              className="px-3 py-2 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-800 font-bold"
+            >
+              <option value="All">Semua Kategori</option>
+              {CATEGORIES_DATA.map((cat) => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-800 font-bold"
+            >
+              <option value="position">Urutan Posisi (Default)</option>
+              <option value="price-asc">Harga: Murah ke Mahal</option>
+              <option value="price-desc">Harga: Mahal ke Murah</option>
+              <option value="sales">Terlaris</option>
+            </select>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-500">Total: {filteredProducts.length} Produk</span>
+        </div>
       </div>
 
       {loading ? (
@@ -193,16 +308,17 @@ export default function AdminProductsPage() {
                 <th className="p-4">Harga</th>
                 <th className="p-4">Versi</th>
                 <th className="p-4">Penjualan</th>
+                <th className="p-4 text-center">Urutan</th>
                 <th className="p-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-400">Belum ada produk digital terdaftar.</td>
+                  <td colSpan={7} className="p-8 text-center text-gray-400">Belum ada produk digital terdaftar.</td>
                 </tr>
               ) : (
-                filtered.map((prod) => (
+                filteredProducts.map((prod, index) => (
                   <tr key={prod.id} className="hover:bg-gray-50">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -224,6 +340,26 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-4 font-semibold text-gray-600">{prod.version || 'v1.0.0'}</td>
                     <td className="p-4 font-semibold text-emerald-600">{prod.salesCount || 0} Terjual</td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleMoveUp(index)}
+                          disabled={index === 0 || sortBy !== 'position'}
+                          className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:hover:bg-gray-100"
+                          title="Pindahkan Ke Atas"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleMoveDown(index)}
+                          disabled={index === filteredProducts.length - 1 || sortBy !== 'position'}
+                          className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:hover:bg-gray-100"
+                          title="Pindahkan Ke Bawah"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
                     <td className="p-4 text-right space-x-1.5">
                       <button onClick={() => handleOpenEdit(prod)} className="p-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200" title="Sunting Produk">
                         <Edit2 className="w-3.5 h-3.5" />

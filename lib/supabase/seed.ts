@@ -14,6 +14,7 @@ export async function seedInitialSupabaseData() {
 
   try {
     // 1. Seed Products
+    let prodIdx = 1;
     for (const prod of PRODUCTS_DATA) {
       await setDocById('products', prod.id, {
         title: prod.title,
@@ -33,9 +34,11 @@ export async function seedInitialSupabaseData() {
         rating: prod.rating || 5.0,
         reviewCount: prod.reviewCount || 0,
         isFeatured: prod.isFeatured || false,
+        position: prodIdx * 10, // spaced by 10 for easy insertion/reordering
         createdAt: prod.createdAt,
       });
       results.products++;
+      prodIdx++;
     }
 
     // 2. Seed Categories
