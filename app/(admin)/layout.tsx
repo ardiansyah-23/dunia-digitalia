@@ -19,10 +19,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!user && !isLoginPage) {
         router.push('/login');
       } else if (user) {
-        // 1. Block Customers from accessing dashboard
+        // 1. Allow Customers to access main dashboard but block sub-pages
         if (user.role === 'Customer') {
-          toast.error('Akses ditolak: Akun Anda tidak memiliki hak akses administrator.');
-          router.push('/');
+          if (pathname !== '/dashboard') {
+            toast.error('Akses ditolak: Anda hanya dapat mengakses halaman utama dashboard klien.');
+            router.push('/dashboard');
+          }
         } 
         // 2. Block standard Admins from Super Admin pages
         else if (user.role === 'Admin') {
@@ -48,7 +50,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   // Double check role protection to prevent flash of content
-  if (!user || user.role === 'Customer') return null;
+  if (!user) return null;
+  if (user.role === 'Customer' && pathname !== '/dashboard') return null;
   if (user.role === 'Admin' && (pathname === '/dashboard/users' || pathname === '/dashboard/settings')) {
     return null;
   }

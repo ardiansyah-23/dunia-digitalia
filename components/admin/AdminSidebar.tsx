@@ -36,6 +36,11 @@ const ADMIN_MENU = [
   { label: 'Pengaturan Situs', href: '/dashboard/settings', icon: Settings, roles: ['Super Admin'] },
 ];
 
+const CUSTOMER_MENU = [
+  { label: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Kembali ke Beranda', href: '/', icon: ShoppingBag },
+];
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -53,6 +58,13 @@ export default function AdminSidebar() {
     router.push('/login');
   };
 
+  const menuItems = role === 'Customer' ? CUSTOMER_MENU : ADMIN_MENU.filter((item) => {
+    if (item.roles) {
+      return item.roles.includes(role);
+    }
+    return role === 'Super Admin' || role === 'Admin';
+  });
+
   return (
     <aside className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0 shadow-xs z-20">
       {/* Header */}
@@ -63,19 +75,14 @@ export default function AdminSidebar() {
         <div>
           <h2 className="font-extrabold text-gray-900 text-sm whitespace-nowrap">Dunia Digitalia</h2>
           <span className="text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded whitespace-nowrap">
-            Admin Panel
+            {role === 'Customer' ? 'Portal Pelanggan' : 'Admin Panel'}
           </span>
         </div>
       </div>
 
       {/* Nav List */}
       <nav className="flex-grow p-4 space-y-1.5 overflow-y-auto">
-        {ADMIN_MENU.filter((item) => {
-          if (item.roles) {
-            return item.roles.includes(role);
-          }
-          return role === 'Super Admin' || role === 'Admin';
-        }).map((item) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
@@ -125,7 +132,9 @@ export default function AdminSidebar() {
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-all"
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          <span className="whitespace-nowrap">Keluar Admin</span>
+          <span className="whitespace-nowrap">
+            {role === 'Customer' ? 'Keluar Akun' : 'Keluar Admin'}
+          </span>
         </button>
       </div>
     </aside>
