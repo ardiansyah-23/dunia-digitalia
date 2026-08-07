@@ -27,7 +27,7 @@ export default function AdminUsersPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'Super Admin' | 'Admin' | 'Customer'>('Customer');
-  const [password, setPassword] = useState('user123');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const loadData = async () => {
@@ -51,7 +51,7 @@ export default function AdminUsersPage() {
     setName('');
     setEmail('');
     setRole('Customer');
-    setPassword('user123');
+    setPassword('');
     setShowPassword(false);
     setIsModalOpen(true);
   };
@@ -61,7 +61,7 @@ export default function AdminUsersPage() {
     setName(u.name);
     setEmail(u.email);
     setRole(u.role);
-    setPassword(u.password || 'user123');
+    setPassword(u.password || '');
     setShowPassword(false);
     setIsModalOpen(true);
   };
@@ -80,8 +80,12 @@ export default function AdminUsersPage() {
       return;
     }
 
-    // Password length validation
-    if (password.length < 6) {
+    // Password validation: required for new user, optional (but minimum 6 char if filled) for editing
+    if (!editingUser && !password) {
+      toast.error('Mohon tentukan password untuk pengguna baru!');
+      return;
+    }
+    if (password && password.length < 6) {
       toast.error('Password minimal 6 karakter!');
       return;
     }
@@ -92,7 +96,7 @@ export default function AdminUsersPage() {
       name,
       email: email.toLowerCase(),
       role,
-      password,
+      password: password || (editingUser?.password || ''),
       joinedDate: editingUser ? editingUser.joinedDate : new Date().toLocaleDateString('id-ID'),
       ordersCount: editingUser ? editingUser.ordersCount : 0,
     };
@@ -257,14 +261,16 @@ export default function AdminUsersPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Password Akun *</label>
+                <label className="block font-bold text-gray-700 mb-1">
+                  {editingUser ? 'Password Baru (Kosongkan jika tidak diubah)' : 'Password Akun *'}
+                </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="Minimal 6 karakter"
+                    required={!editingUser}
+                    placeholder={editingUser ? 'Ketik untuk mengganti password' : 'Minimal 6 karakter'}
                     className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 pr-10"
                   />
                   <button
