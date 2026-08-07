@@ -46,7 +46,7 @@ export default function ServicesSection() {
         {/* Services grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {SERVICES_DATA.map((service, i) => {
-            const Icon = ICON_MAP[service.icon] || Zap;
+            const Icon = ICON_MAP[service.icon || 'Zap'] || Zap;
 
             return (
               <FadeUp key={service.id} delay={i * 0.1}>
