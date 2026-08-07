@@ -281,3 +281,6 @@ ON CONFLICT (id) DO NOTHING;
 -- Storage policies for uploads
 DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 CREATE POLICY "Public Access" ON storage.objects FOR ALL USING (bucket_id = 'uploads') WITH CHECK (bucket_id = 'uploads');
+
+-- Reload schema cache to make new columns immediately available via API
+NOTIFY pgrst, 'reload schema';
