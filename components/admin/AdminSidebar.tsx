@@ -17,6 +17,7 @@ import {
   Tag,
   Shield,
   User as UserIcon,
+  Home,
 } from 'lucide-react';
 import { signOutUser } from '@/lib/supabase/auth';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -38,7 +39,9 @@ const ADMIN_MENU = [
 
 const CUSTOMER_MENU = [
   { label: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Kembali ke Beranda', href: '/', icon: ShoppingBag },
+  { label: 'Kembali ke Beranda', href: '/', icon: Home },
+  { label: 'Beli Produk', href: '/produk', icon: ShoppingBag },
+  { label: 'Jasa Web', href: '/jasa', icon: Layers },
 ];
 
 export default function AdminSidebar() {
