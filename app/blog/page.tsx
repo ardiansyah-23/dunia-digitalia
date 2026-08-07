@@ -1,15 +1,14 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Calendar, Clock, User, ArrowRight, Sparkles, Tag } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowRight, Loader2, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
+import { getCollection } from '@/lib/supabase/database';
 
-export const metadata = {
-  title: 'Blog & Tutorial Teknologi | Dunia Digitalia',
-  description: 'Artikel, panduan, dan tutorial seputar Blogger, Next.js, SEO, AI, dan bisnis digital.',
-};
-
-const ARTICLES_DATA = [
+const INITIAL_ARTICLES = [
   {
     id: '1',
     title: 'Cara Optimasi SEO Template Blogger Agar Lolos Google AdSense & Fast Indexing',
@@ -61,8 +60,45 @@ const ARTICLES_DATA = [
 ];
 
 export default function BlogPage() {
-  const featured = ARTICLES_DATA.find(a => a.featured) || ARTICLES_DATA[0];
-  const regularArticles = ARTICLES_DATA.filter(a => a.id !== featured.id);
+  const [articles, setArticles] = useState<any[]>(INITIAL_ARTICLES);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    getCollection<any>('articles')
+      .then((data) => {
+        if (data && data.length > 0) {
+          // Map database fields to the fields UI expects
+          const mapped = data.map((a) => ({
+            id: a.id,
+            title: a.title,
+            slug: a.slug,
+            excerpt: a.excerpt || a.content?.replace(/<[^>]*>/g, '').slice(0, 150) || '',
+            category: a.category,
+            author: a.author || 'Admin Utama',
+            date: a.created_at
+              ? new Date(a.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+              : '2 Agust 2026',
+            readTime: '5 min baca',
+            image: a.cover_image || a.coverImage || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
+            featured: a.featured || false,
+            published: a.published !== false,
+          }));
+          setArticles(mapped.filter(a => a.published));
+        }
+      })
+      .catch((err) => console.error('Error loading articles:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = articles.filter(
+    (a) =>
+      (a.title || '').toLowerCase().includes(search.toLowerCase()) ||
+      (a.excerpt || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  const featured = filtered.find((a) => a.featured) || filtered[0];
+  const regularArticles = featured ? filtered.filter((a) => a.id !== featured.id) : filtered;
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
@@ -73,7 +109,7 @@ export default function BlogPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
             {/* Page Header */}
-            <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="text-center max-w-2xl mx-auto space-y-4">
               <span className="badge-primary">Blog & Education Hub</span>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                 Artikel & Tutorial Teknologi
@@ -81,90 +117,119 @@ export default function BlogPage() {
               <p className="text-gray-500 text-sm">
                 Wawasan mendalam seputar template Blogger, Next.js, SEO, AI, dan otomasi bisnis digital.
               </p>
-            </div>
-
-            {/* Featured Article Card */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm grid lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 h-64 sm:h-80 rounded-2xl overflow-hidden bg-gray-100 relative">
-                <img
-                  src={featured.image}
-                  alt={featured.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              
+              {/* Search input */}
+              <div className="relative max-w-md mx-auto pt-2">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Cari artikel..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-gray-200 text-gray-900 text-xs focus:outline-none focus:border-blue-500 focus:bg-white"
                 />
-                <span className="absolute top-4 left-4 badge-primary bg-white/90 backdrop-blur-sm shadow-xs">
-                  {featured.category}
-                </span>
-              </div>
-
-              <div className="lg:col-span-5 space-y-4">
-                <div className="flex items-center gap-3 text-xs text-gray-400 font-semibold">
-                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {featured.date}</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {featured.readTime}</span>
-                </div>
-
-                <Link href={`/blog/${featured.slug}`} className="block group">
-                  <h2 className="text-2xl font-extrabold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
-                    {featured.title}
-                  </h2>
-                </Link>
-
-                <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
-                  {featured.excerpt}
-                </p>
-
-                <div className="pt-2">
-                  <Link href={`/blog/${featured.slug}`} className="btn-primary text-xs px-5 py-2.5 inline-flex items-center gap-2">
-                    Baca Selengkapnya <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
               </div>
             </div>
 
-            {/* Regular Articles Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {regularArticles.map((article) => (
-                <div key={article.id} className="card-product overflow-hidden flex flex-col justify-between">
-                  <div>
-                    <div className="h-44 relative bg-gray-100 overflow-hidden">
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-gray-400 gap-3 bg-white border border-gray-200 rounded-3xl">
+                <MessageSquare className="w-12 h-12 opacity-30" />
+                <p className="text-sm font-medium">Belum ada artikel ditemukan</p>
+              </div>
+            ) : (
+              <>
+                {/* Featured Article Card */}
+                {featured && (
+                  <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm grid lg:grid-cols-12 gap-8 items-center">
+                    <div className="lg:col-span-7 h-64 sm:h-80 rounded-2xl overflow-hidden bg-gray-100 relative">
                       <img
-                        src={article.image}
-                        alt={article.title}
+                        src={featured.image}
+                        alt={featured.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/90 text-gray-800 backdrop-blur-sm shadow-xs">
-                        {article.category}
+                      <span className="absolute top-4 left-4 badge-primary bg-white/90 backdrop-blur-sm shadow-xs">
+                        {featured.category}
                       </span>
                     </div>
 
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center gap-3 text-[11px] text-gray-400 font-medium">
-                        <span>{article.date}</span>
+                    <div className="lg:col-span-5 space-y-4">
+                      <div className="flex items-center gap-3 text-xs text-gray-400 font-semibold">
+                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {featured.date}</span>
                         <span>•</span>
-                        <span>{article.readTime}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {featured.readTime}</span>
                       </div>
 
-                      <Link href={`/blog/${article.slug}`} className="block">
-                        <h3 className="font-bold text-gray-900 text-base leading-snug hover:text-blue-600 transition-colors line-clamp-2">
-                          {article.title}
-                        </h3>
+                      <Link href={`/blog/${featured.slug}`} className="block group">
+                        <h2 className="text-2xl font-extrabold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
+                          {featured.title}
+                        </h2>
                       </Link>
 
-                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                        {article.excerpt}
+                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                        {featured.excerpt}
                       </p>
+
+                      <div className="pt-2">
+                        <Link href={`/blog/${featured.slug}`} className="btn-primary text-xs px-5 py-2.5 inline-flex items-center gap-2">
+                          Baca Selengkapnya <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  <div className="p-5 pt-0 border-t border-gray-100 flex items-center justify-between mt-4">
-                    <span className="text-xs text-gray-400 font-semibold">{article.author}</span>
-                    <Link href={`/blog/${article.slug}`} className="text-xs font-bold text-blue-600 hover:underline">
-                      Baca →
-                    </Link>
+                {/* Regular Articles Grid */}
+                {regularArticles.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {regularArticles.map((article) => (
+                      <div key={article.id} className="card-product overflow-hidden flex flex-col justify-between">
+                        <div>
+                          <div className="h-44 relative bg-gray-100 overflow-hidden">
+                            <img
+                              src={article.image}
+                              alt={article.title}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/90 text-gray-800 backdrop-blur-sm shadow-xs">
+                              {article.category}
+                            </span>
+                          </div>
+
+                          <div className="p-5 space-y-3">
+                            <div className="flex items-center gap-3 text-[11px] text-gray-400 font-medium">
+                              <span>{article.date}</span>
+                              <span>•</span>
+                              <span>{article.readTime}</span>
+                            </div>
+
+                            <Link href={`/blog/${article.slug}`} className="block">
+                              <h3 className="font-bold text-gray-900 text-base leading-snug hover:text-blue-600 transition-colors line-clamp-2">
+                                {article.title}
+                              </h3>
+                            </Link>
+
+                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                              {article.excerpt}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-5 pt-0 border-t border-gray-100 flex items-center justify-between mt-4">
+                          <span className="text-xs text-gray-400 font-semibold">{article.author}</span>
+                          <Link href={`/blog/${article.slug}`} className="text-xs font-bold text-blue-600 hover:underline">
+                            Baca →
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </>
+            )}
 
           </div>
         </PageTransition>

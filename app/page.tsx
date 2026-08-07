@@ -38,6 +38,16 @@ export default function MarketplaceHomePage() {
   const [openFaq, setOpenFaq] = useState<string | null>('1');
   const [products, setProducts] = useState(PRODUCTS_DATA);
   const [categories, setCategories] = useState(CATEGORIES_DATA);
+  const [services, setServices] = useState<any[]>([
+    { title: 'Company Profile', startingPrice: 1500000, description: 'Website profil perusahaan profesional, responsif, dan SEO friendly.', features: ['Desain Kustom', 'Gratis Domain .com 1 Thn', 'Optimasi SEO', 'Garansi 30 Hari'] },
+    { title: 'Website Toko Online', startingPrice: 2500000, description: 'Toko online lengkap dengan integrasi payment gateway Tripay & ongkir.', features: ['Payment Gateway QRIS/VA', 'Katalog Produk Unlimited', 'Cek Ongkir Otomatis', 'Admin Dashboard'] },
+    { title: 'Portal Berita / Media', startingPrice: 3000000, description: 'Portal berita bertrafik tinggi dengan manajemen redaksi dan slot iklan.', features: ['Kecepatan Tinggi', 'Slot Iklan AdSense', 'Kategori Berita Multi-level', 'SEO Schema News'] }
+  ]);
+  const [testimonials, setTestimonials] = useState<any[]>([
+    { name: 'Rian Hidayat', role: 'Blogger', content: 'Template NewsFast sangat cepat dan rapi. Pendapatan Google AdSense blog saya naik signifikan!', rating: 5 },
+    { name: 'Siti Rahma', role: 'Pemilik Olshop', content: 'Jasa pembuatan toko online dari Dunia Digitalia sangat profesional. Pembayaran otomatis via Tripay berjalan lancar.', rating: 5 },
+    { name: 'Budi Santoso', role: 'Developer', content: 'Source code Next.js 15 nya sangat rapi, modular, dan mudah dikembangkan lagi. Recommended!', rating: 5 }
+  ]);
 
   useEffect(() => {
     getCollection<any>('products').then(data => {
@@ -51,6 +61,18 @@ export default function MarketplaceHomePage() {
         setCategories(data);
       }
     }).catch(err => console.error("Error loading categories:", err));
+
+    getCollection<any>('services').then(data => {
+      if (data && data.length > 0) {
+        setServices(data.filter(s => s.active !== false));
+      }
+    }).catch(err => console.error("Error loading services:", err));
+
+    getCollection<any>('testimonials').then(data => {
+      if (data && data.length > 0) {
+        setTestimonials(data);
+      }
+    }).catch(err => console.error("Error loading testimonials:", err));
   }, []);
 
   return (
@@ -302,20 +324,16 @@ export default function MarketplaceHomePage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { title: 'Company Profile', price: 'Rp 1.500.000', desc: 'Website profil perusahaan profesional, responsif, dan SEO friendly.', features: ['Desain Kustom', 'Gratis Domain .com 1 Thn', 'Optimasi SEO', 'Garansi 30 Hari'] },
-                  { title: 'Website Toko Online', price: 'Rp 2.500.000', desc: 'Toko online lengkap dengan integrasi payment gateway Tripay & ongkir.', features: ['Payment Gateway QRIS/VA', 'Katalog Produk Unlimited', 'Cek Ongkir Otomatis', 'Admin Dashboard'] },
-                  { title: 'Portal Berita / Media', price: 'Rp 3.000.000', desc: 'Portal berita bertrafik tinggi dengan manajemen redaksi dan slot iklan.', features: ['Kecepatan Tinggi', 'Slot Iklan AdSense', 'Kategori Berita Multi-level', 'SEO Schema News'] },
-                ].map((service, idx) => (
+                {services.map((service, idx) => (
                   <div key={idx} className="p-7 rounded-2xl bg-slate-50 border border-gray-200 hover:border-blue-500 transition-all flex flex-col justify-between">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                      <p className="text-xs text-gray-500 mb-4">{service.desc}</p>
+                      <p className="text-xs text-gray-500 mb-4">{service.description || service.desc}</p>
                       <div className="text-2xl font-black text-blue-600 mb-6">
-                        Mulai {service.price}
+                        Mulai Rp {(service.startingPrice || 1500000).toLocaleString('id-ID')}
                       </div>
                       <ul className="space-y-2.5 mb-8 text-xs text-gray-700 font-medium">
-                        {service.features.map(f => (
+                        {Array.isArray(service.features) && (service.features as string[]).map((f: string) => (
                           <li key={f} className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                             {f}
@@ -389,11 +407,7 @@ export default function MarketplaceHomePage() {
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  { name: 'Rian Hidayat', role: 'Blogger', content: 'Template NewsFast sangat cepat dan rapi. Pendapatan Google AdSense blog saya naik signifikan!', rating: 5 },
-                  { name: 'Siti Rahma', role: 'Pemilik Olshop', content: 'Jasa pembuatan toko online dari Dunia Digitalia sangat profesional. Pembayaran otomatis via Tripay berjalan lancar.', rating: 5 },
-                  { name: 'Budi Santoso', role: 'Developer', content: 'Source code Next.js 15 nya sangat rapi, modular, dan mudah dikembangkan lagi. Recommended!', rating: 5 },
-                ].map((t, idx) => (
+                {testimonials.map((t, idx) => (
                   <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-gray-200 space-y-4">
                     <div className="flex gap-1 text-amber-400">
                       {[...Array(t.rating)].map((_, i) => (
