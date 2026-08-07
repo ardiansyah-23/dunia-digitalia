@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { getCollection, updateDocById } from '@/lib/supabase/database';
 import { Loader2, Search, Download, RefreshCw, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -120,60 +121,63 @@ export default function AdminOrdersPage() {
             <p className="text-sm font-medium">Belum ada pesanan masuk</p>
           </div>
         ) : (
-          <table className="w-full text-left text-xs text-gray-600">
-            <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
-              <tr>
-                <th className="p-4">No Pesanan</th>
-                <th className="p-4">Pelanggan</th>
-                <th className="p-4">Metode Bayar</th>
-                <th className="p-4">Total</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filtered.map((ord) => (
-                <tr key={ord.id} className="hover:bg-gray-50/50">
-                  <td className="p-4 font-bold text-gray-900">{ord.id}</td>
-                  <td className="p-4">
-                    <div className="font-semibold text-gray-900">{ord.customer_name}</div>
-                    <span className="text-[11px] text-gray-400">{ord.customer_email}</span>
-                  </td>
-                  <td className="p-4 font-semibold text-blue-600">{ord.payment_method}</td>
-                  <td className="p-4 font-bold text-gray-900">Rp {ord.amount.toLocaleString('id-ID')}</td>
-                  <td className="p-4">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                        ord.status === 'Paid'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : ord.status === 'Pending'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                          : 'bg-red-50 text-red-700 border border-red-200'
-                      }`}
-                    >
-                      {ord.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button
-                      onClick={() => retryCheck(ord.id)}
-                      className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                      title="Cek Ulang Status Tripay"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </button>
-                    <a
-                      href={`/invoice/${ord.id}?name=${encodeURIComponent(ord.customer_name)}&email=${encodeURIComponent(ord.customer_email)}&price=${ord.amount}&method=${ord.payment_method}`}
-                      className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 inline-block"
-                      title="Lihat Invoice"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                    </a>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-gray-600 min-w-[650px]">
+              <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
+                <tr>
+                  <th className="p-4">No Pesanan</th>
+                  <th className="p-4">Pelanggan</th>
+                  <th className="p-4">Metode Bayar</th>
+                  <th className="p-4">Total</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filtered.map((ord) => (
+                  <tr key={ord.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="p-4 font-mono font-bold text-blue-600">{ord.id}</td>
+                    <td className="p-4">
+                      <div className="font-bold text-gray-900">{ord.customer_name || 'Pelanggan'}</div>
+                      <div className="text-[11px] text-gray-400">{ord.customer_email || '-'}</div>
+                    </td>
+                    <td className="p-4 font-semibold text-gray-700">{ord.payment_method || 'QRIS'}</td>
+                    <td className="p-4 font-bold text-gray-900">
+                      Rp {(ord.amount || 0).toLocaleString('id-ID')}
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        ord.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                        ord.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                        'bg-red-50 text-red-700 border border-red-200'
+                      }`}>
+                        {ord.status === 'Paid' ? 'Lunas' : ord.status === 'Pending' ? 'Pending' : 'Dibatalkan'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {ord.status === 'Pending' && (
+                          <button
+                            onClick={() => retryCheck(ord.id)}
+                            title="Tandai Sudah Lunas"
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 border border-emerald-200 text-xs flex items-center gap-1 font-semibold"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" /> Lunas
+                          </button>
+                        )}
+                        <Link
+                          href={`/invoice/${ord.id}`}
+                          className="p-1.5 rounded-lg text-gray-600 hover:bg-gray-100 border border-gray-200 text-xs flex items-center gap-1"
+                        >
+                          <FileText className="w-3.5 h-3.5" /> Invoice
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

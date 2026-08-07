@@ -300,7 +300,8 @@ export default function AdminProductsPage() {
       ) : (
         /* Table */
         <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-          <table className="w-full text-left text-xs text-gray-600">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-gray-600 min-w-[650px]">
             <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
               <tr>
                 <th className="p-4">Produk</th>
@@ -374,6 +375,7 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+      </div>
       )}
 
       {/* Modal Form Upload & Edit */}
