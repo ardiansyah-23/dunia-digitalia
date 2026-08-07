@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, MapPin, ShieldCheck, Zap } from 'lucide-react';
+import { Mail, Phone, MapPin, ShieldCheck, ArrowUpRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { COMPANY_INFO } from '@/lib/constants/nav';
 
 const paymentBadges = [
@@ -8,92 +8,132 @@ const paymentBadges = [
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 text-gray-600">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800/80">
+      {/* Top Banner / Trust Bar */}
+      <div className="border-b border-slate-800/60 bg-slate-900/40 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white">100% Garansi Bebas Malware</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">Seluruh kode & template telah diuji secara ketat</p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center md:justify-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white">Instan Download 24/7</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">Akses berkas langsung dikirim setelah verifikasi Tripay</p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center md:justify-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white">Dukungan Garansi & Support</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">Tim developer siap mendampingi proses instalasi</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer Links */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
 
-          {/* Column 1: Brand & Info */}
-          <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-lg">
+          {/* Column 1: Brand & Contact Info */}
+          <div className="lg:col-span-2 space-y-5">
+            <Link href="/" className="flex items-center gap-3 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
                 D
               </div>
-              <span className="font-extrabold text-lg text-gray-900">
-                Dunia<span className="text-blue-600">Digitalia</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="font-extrabold text-xl text-white tracking-tight leading-none">
+                  Dunia<span className="text-blue-500">Digitalia</span>
+                </span>
+                <span className="text-[10px] font-semibold text-slate-500 tracking-widest uppercase mt-0.5">
+                  Digital Marketplace & Agency
+                </span>
+              </div>
             </Link>
-            <p className="text-xs text-gray-500 leading-relaxed max-w-sm">
-              Digital Marketplace & Web Development Agency terpercaya. Menyediakan template Blogger, source code aplikasi, dan jasa pembuatan website profesional.
+
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              Pusat marketplace produk digital terpercaya di Indonesia. Menyediakan template Blogger premium, source code aplikasi web, AI prompt, serta jasa pembuatan website profesional.
             </p>
 
-            <div className="space-y-2 text-xs text-gray-600">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="space-y-2.5 text-xs text-slate-400 pt-2">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                 <span>{COMPANY_INFO.address}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{COMPANY_INFO.email}</span>
+              <div className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                <a href={`mailto:${COMPANY_INFO.email}`} className="hover:text-white transition-colors">{COMPANY_INFO.email}</a>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{COMPANY_INFO.phone}</span>
+              <div className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+                <a href={`https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">{COMPANY_INFO.phone}</a>
               </div>
             </div>
           </div>
 
-          {/* Column 2: Marketplace Products */}
-          <div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">Produk Digital</h4>
-            <ul className="space-y-2.5 text-xs font-medium">
-              <li><Link href="/produk?kategori=template-blogger" className="hover:text-blue-600">Template Blogger</Link></li>
-              <li><Link href="/produk?kategori=source-code" className="hover:text-blue-600">Source Code Web</Link></li>
-              <li><Link href="/produk?kategori=website-toko-online" className="hover:text-blue-600">Toko Online</Link></li>
-              <li><Link href="/produk?kategori=template-admin-dashboard" className="hover:text-blue-600">Admin Dashboard</Link></li>
-              <li><Link href="/produk?kategori=ai-prompt" className="hover:text-blue-600">AI Prompt & Tools</Link></li>
-              <li><Link href="/produk?kategori=ebook" className="hover:text-blue-600">Ebook Panduan</Link></li>
+          {/* Column 2: Digital Products */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Produk Digital</h4>
+            <ul className="space-y-2.5 text-xs">
+              <li><Link href="/produk?kategori=template-blogger" className="hover:text-white transition-colors flex items-center gap-1 group"><span>Template Blogger</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
+              <li><Link href="/produk?kategori=source-code" className="hover:text-white transition-colors flex items-center gap-1 group"><span>Source Code Web</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
+              <li><Link href="/produk?kategori=website-toko-online" className="hover:text-white transition-colors flex items-center gap-1 group"><span>Toko Online</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
+              <li><Link href="/produk?kategori=template-admin-dashboard" className="hover:text-white transition-colors flex items-center gap-1 group"><span>Admin Dashboard</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
+              <li><Link href="/produk?kategori=ai-prompt" className="hover:text-white transition-colors flex items-center gap-1 group"><span>AI Prompt & Tools</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
+              <li><Link href="/produk?kategori=ebook" className="hover:text-white transition-colors flex items-center gap-1 group"><span>Ebook Pemrograman</span><ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" /></Link></li>
             </ul>
           </div>
 
-          {/* Column 3: Services */}
-          <div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">Jasa Website</h4>
-            <ul className="space-y-2.5 text-xs font-medium">
-              <li><Link href="/jasa#company-profile" className="hover:text-blue-600">Company Profile</Link></li>
-              <li><Link href="/jasa#toko-online" className="hover:text-blue-600">Website Toko Online</Link></li>
-              <li><Link href="/jasa#portal-berita" className="hover:text-blue-600">Portal Berita</Link></li>
-              <li><Link href="/jasa#custom-system" className="hover:text-blue-600">Custom Web App</Link></li>
-              <li><Link href="/jasa#seo" className="hover:text-blue-600">Optimasi SEO Web</Link></li>
+          {/* Column 3: Web Agency Services */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Jasa Website</h4>
+            <ul className="space-y-2.5 text-xs">
+              <li><Link href="/jasa#company-profile" className="hover:text-white transition-colors">Company Profile</Link></li>
+              <li><Link href="/jasa#toko-online" className="hover:text-white transition-colors">Website Toko Online</Link></li>
+              <li><Link href="/jasa#portal-berita" className="hover:text-white transition-colors">Portal Berita / Media</Link></li>
+              <li><Link href="/jasa#custom-system" className="hover:text-white transition-colors">Custom Web App</Link></li>
+              <li><Link href="/jasa#seo" className="hover:text-white transition-colors">Optimasi SEO Website</Link></li>
+              <li><Link href="/portfolio" className="hover:text-white transition-colors text-blue-400 font-semibold">Lihat Portfolio Klien →</Link></li>
             </ul>
           </div>
 
-          {/* Column 4: Supported Payments & Trust */}
-          <div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">Metode Pembayaran</h4>
-            <p className="text-[11px] text-gray-500 mb-3">Diproses otomatis via Tripay Payment Gateway:</p>
-            <div className="flex flex-wrap gap-1.5 mb-5">
+          {/* Column 4: Payment Methods */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Pembayaran Otomatis</h4>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Diproses 24/7 melalui Tripay Payment Gateway resmi:
+            </p>
+            <div className="flex flex-wrap gap-1.5 pt-1">
               {paymentBadges.map((badge) => (
-                <span key={badge} className="px-2 py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-bold text-gray-700">
+                <span key={badge} className="px-2.5 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold text-slate-300">
                   {badge}
                 </span>
               ))}
-            </div>
-
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span className="font-semibold text-[11px]">100% Garansi Instan Download</span>
             </div>
           </div>
 
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 mt-10 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} Dunia Digitalia. All rights reserved.</p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/kebijakan-privasi" className="hover:text-gray-900 transition-colors">Kebijakan Privasi</Link>
-            <Link href="/syarat-ketentuan" className="hover:text-gray-900 transition-colors">Syarat & Ketentuan</Link>
-            <Link href="/kebijakan-pengembalian" className="hover:text-gray-900 transition-colors">Kebijakan Pengembalian</Link>
+        <div className="pt-8 mt-12 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} Dunia Digitalia. Hak Cipta Dilindungi Undang-Undang.</p>
+          <div className="flex flex-wrap gap-6 text-xs font-medium">
+            <Link href="/kebijakan-privasi" className="hover:text-slate-300 transition-colors">Kebijakan Privasi</Link>
+            <Link href="/syarat-ketentuan" className="hover:text-slate-300 transition-colors">Syarat & Ketentuan</Link>
+            <Link href="/kebijakan-pengembalian" className="hover:text-slate-300 transition-colors">Kebijakan Pengembalian</Link>
           </div>
         </div>
       </div>

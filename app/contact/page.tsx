@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Mail, Phone, Clock, Send, CheckCircle2 } from 'lucide-react';
+import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -53,158 +53,155 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20">
+      <main className="flex-grow pt-28 pb-24">
         <PageTransition>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
-            {/* Page Header */}
-            <div className="text-center max-w-2xl mx-auto space-y-2">
-              <span className="badge-primary">Get In Touch</span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-                Hubungi Dunia Digitalia
+            {/* Header */}
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <span className="badge-primary">Hubungi Tim Kami</span>
+              <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                Mari Bicara Tentang Proyek Anda
               </h1>
-              <p className="text-gray-500 text-sm">
-                Siap memulai transformasi digital Anda? Konsultasikan kebutuhan proyek atau pertanyaan produk Anda bersama tim kami.
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Konsultasikan kebutuhan pembuatan website, lisensi produk digital, atau pertanyaan bisnis Anda bersama tim kami.
               </p>
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8 items-start">
               
-              {/* Left Box — Contact Info (5 cols) */}
-              <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">Informasi Kontak</h2>
+              {/* Left Column — Contact Info (5 cols) */}
+              <div className="lg:col-span-5 bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-6">
+                <h2 className="text-xl font-extrabold text-slate-900 border-b border-slate-100 pb-4">Informasi Kontak</h2>
 
-                <div className="space-y-4 text-xs text-gray-600 font-medium">
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <MapPin className="w-4 h-4" />
+                <div className="space-y-5 text-xs sm:text-sm text-slate-600 font-medium">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-2xs">
+                      <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900">Alamat Kantor</h4>
-                      <p className="mt-0.5 leading-relaxed">{COMPANY_INFO.address}</p>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Alamat Kantor</h4>
+                      <p className="mt-0.5 leading-relaxed text-slate-600">{COMPANY_INFO.address}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4" />
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Mail className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900">Email Resmi</h4>
-                      <p className="mt-0.5">{COMPANY_INFO.email}</p>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Email Resmi</h4>
+                      <a href={`mailto:${COMPANY_INFO.email}`} className="hover:text-blue-600 transition-colors mt-0.5 block">{COMPANY_INFO.email}</a>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4" />
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs">
+                      <MessageSquare className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900">Telepon / WhatsApp</h4>
-                      <p className="mt-0.5">{COMPANY_INFO.phone}</p>
+                      <h4 className="font-extrabold text-slate-900 text-sm">WhatsApp Fast Response</h4>
+                      <a href={`https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-600 transition-colors mt-0.5 block font-bold text-emerald-700">{COMPANY_INFO.whatsapp}</a>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Clock className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900">Jam Operasional</h4>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Jam Operasional</h4>
                       <p className="mt-0.5">{COMPANY_INFO.workingHours}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-100">
-                  <a
-                    href={`https://wa.me/${COMPANY_INFO.whatsapp.replace(/\D/g, '')}?text=Halo%20Dunia%20Digitalia,%20saya%20ingin%20konsultasi.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary bg-emerald-600 hover:bg-emerald-700 border-emerald-500 w-full text-xs py-3.5 flex items-center justify-center gap-2 font-bold"
-                  >
-                    <Send className="w-4 h-4" /> Chat Langsung via WhatsApp
-                  </a>
+                <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200/80 text-blue-950 text-xs leading-relaxed space-y-1">
+                  <span className="font-bold block text-blue-900">Respon Cepat 1x24 Jam</span>
+                  <p>Seluruh formulir konsultasi yang dikirim akan langsung diteruskan ke tim pengembang untuk respon cepat.</p>
                 </div>
               </div>
 
-              {/* Right Box — Contact Form (7 cols) */}
-              <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">Kirim Pesan Formulir</h2>
+              {/* Right Column — Contact Form (7 cols) */}
+              <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-6">
+                <h2 className="text-xl font-extrabold text-slate-900 border-b border-slate-100 pb-4">Kirim Pesan Konsultasi</h2>
 
-                <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-gray-700 mb-1.5">Nama Lengkap *</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Nama Lengkap *</label>
                       <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
                         placeholder="Budi Santoso"
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
                       />
                     </div>
+
                     <div>
-                      <label className="block font-bold text-gray-700 mb-1.5">Alamat Email *</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Alamat Email *</label>
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         placeholder="budi@example.com"
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-gray-700 mb-1.5">Nomor WhatsApp</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Nomor Telepon / WhatsApp</label>
                       <input
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="081234567890"
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
                       />
                     </div>
+
                     <div>
-                      <label className="block font-bold text-gray-700 mb-1.5">Subjek Keperluan</label>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">Topik Konsultasi *</label>
                       <select
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none font-medium"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm focus:bg-white focus:border-blue-500 focus:outline-none transition-all"
                       >
                         <option value="Konsultasi Jasa Web Development">Konsultasi Jasa Web Development</option>
-                        <option value="Pertanyaan Produk Digital">Pertanyaan Produk Digital</option>
-                        <option value="Bantuan Teknis / Support">Bantuan Teknis / Support</option>
-                        <option value="Kerjasama Bisnis">Kerjasama Bisnis</option>
+                        <option value="Pertanyaan Lisensi Produk Digital">Pertanyaan Lisensi Produk Digital</option>
+                        <option value="Bantuan Teknis & Instalasi">Bantuan Teknis & Instalasi</option>
+                        <option value="Kerjasama Business Partnership">Kerjasama Business Partnership</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-gray-700 mb-1.5">Pesan Detail *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Isi Pesan / Detail Proyek *</label>
                     <textarea
-                      rows={4}
+                      rows={5}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       required
-                      placeholder="Jelaskan kebutuhan proyek atau pertanyaan Anda..."
-                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                      placeholder="Jelaskan kebutuhan website atau pertanyaan produk Anda..."
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm focus:bg-white focus:border-blue-500 focus:outline-none transition-all resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary py-3.5 px-6 font-bold text-xs flex items-center justify-center gap-2"
+                    className="btn-primary w-full py-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-xl shadow-md shadow-blue-500/20"
                   >
-                    {loading ? 'Mengirim Pesan...' : 'Kirim Pesan Sekarang'}
+                    {loading ? 'Mengirim Pesan...' : 'Kirim Pesan Konsultasi'}
+                    <Send className="w-4 h-4" />
                   </button>
                 </form>
               </div>

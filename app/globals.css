@@ -3,13 +3,15 @@
 @theme {
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
+  --color-primary-subtle: #EFF6FF;
+  --color-primary-muted: #BFDBFE;
   --color-bg: #F8FAFC;
   --color-section: #FFFFFF;
   --color-card: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-heading: #111827;
-  --color-body: #374151;
-  --color-muted: #6B7280;
+  --color-border: #E2E8F0;
+  --color-heading: #0F172A;
+  --color-body: #334155;
+  --color-muted: #64748B;
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
@@ -17,36 +19,41 @@
 }
 
 /* ============================================
-   GLOBAL STYLES & BRIGHT MARKETPLACE THEME
+   GLOBAL STYLES & PREMIUM DESIGN SYSTEM
    ============================================ */
 :root {
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
+  --color-primary-subtle: #EFF6FF;
+  --color-primary-muted: #BFDBFE;
   --color-bg: #F8FAFC;
   --color-section: #FFFFFF;
   --color-card: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-heading: #111827;
-  --color-body: #374151;
-  --color-muted: #6B7280;
+  --color-border: #E2E8F0;
+  --color-heading: #0F172A;
+  --color-body: #334155;
+  --color-muted: #64748B;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background-color: #F8FAFC;
-  color: #374151;
+  color: #334155;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
+  line-height: 1.6;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #F8FAFC;
@@ -65,118 +72,143 @@ body {
   color: #1E40AF;
 }
 
-/* UI Utility Classes */
+/* Typography & Layout Helpers */
+.text-balance {
+  text-wrap: balance;
+}
+
 .bg-marketplace {
   background-color: #F8FAFC;
 }
 
+/* Card System */
 .card-product {
   background-color: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  border: 1px solid #E2E8F0;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-product:hover {
   border-color: #BFDBFE;
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.05);
-  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.12), 0 4px 12px -4px rgba(37, 99, 235, 0.06);
+  transform: translateY(-4px);
 }
 
+/* Premium Button System */
 .btn-primary {
   background-color: #2563EB;
   color: #FFFFFF;
   border: 1px solid transparent;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1.75rem;
+  border-radius: 0.875rem;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
 }
 
 .btn-primary:hover {
   background-color: #1D4ED8;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
   transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
   background-color: #FFFFFF;
-  color: #111827;
-  border: 1px solid #E5E7EB;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1.75rem;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.875rem;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary:hover {
-  border-color: #93C5FD;
+  border-color: #BFDBFE;
   background-color: #EFF6FF;
   color: #1D4ED8;
 }
 
+/* Badges */
 .badge-primary {
   background-color: #EFF6FF;
   color: #2563EB;
   border: 1px solid #BFDBFE;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .badge-success {
   background-color: #ECFDF5;
   color: #059669;
   border: 1px solid #A7F3D0;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .badge-warning {
   background-color: #FFFBEB;
   color: #D97706;
   border: 1px solid #FDE68A;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .badge-danger {
   background-color: #FEF2F2;
   color: #DC2626;
   border: 1px solid #FECACA;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-/* TipTap Editor in Bright Mode */
+/* TipTap Editor */
 .ProseMirror {
   outline: none;
   min-height: 260px;
   padding: 1rem;
-  color: #111827;
+  color: #0F172A;
 }
 
-.ProseMirror p { margin-bottom: 0.75rem; line-height: 1.6; }
-.ProseMirror h1 { font-size: 1.875rem; font-weight: 700; color: #111827; }
-.ProseMirror h2 { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.ProseMirror p { margin-bottom: 0.875rem; line-height: 1.7; }
+.ProseMirror h1 { font-size: 1.875rem; font-weight: 800; color: #0F172A; margin-bottom: 1rem; }
+.ProseMirror h2 { font-size: 1.5rem; font-weight: 700; color: #0F172A; margin-bottom: 0.875rem; }

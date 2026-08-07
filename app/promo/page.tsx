@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Tag, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
+import { Tag, CheckCircle2, ArrowRight, Loader2, Copy, Check, Sparkles } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
@@ -16,6 +17,7 @@ const INITIAL_COUPONS = [
 export default function PromoPage() {
   const [coupons, setCoupons] = useState<any[]>(INITIAL_COUPONS);
   const [loading, setLoading] = useState(true);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     getCollection<any>('coupons')
@@ -34,21 +36,29 @@ export default function PromoPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    toast.success(`Kode Kupon ${code} Berhasil Disalin!`);
+    setTimeout(() => setCopiedCode(null), 3000);
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20">
+      <main className="flex-grow pt-28 pb-24">
         <PageTransition>
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             
-            <div className="text-center max-w-xl mx-auto">
-              <span className="badge-primary mb-2">Special Offers</span>
-              <h1 className="text-3xl font-extrabold text-gray-900 mt-2">
-                Kode Promo & Diskon Spesial
+            {/* Header */}
+            <div className="text-center max-w-xl mx-auto space-y-3">
+              <span className="badge-primary">Penawaran Spesial</span>
+              <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                Kode Promo & Kupon Diskon
               </h1>
-              <p className="text-gray-500 text-sm mt-2">
-                Gunakan kode kupon di bawah ini saat checkout untuk mendapatkan potongan harga langsung.
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Salin kode kupon promo di bawah ini dan masukkan saat proses checkout untuk mendapatkan potongan harga langsung.
               </p>
             </div>
 
@@ -59,18 +69,34 @@ export default function PromoPage() {
             ) : (
               <div className="space-y-4">
                 {coupons.map((p, i) => (
-                  <div key={i} className="p-6 rounded-2xl bg-white border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
+                  <div
+                    key={i}
+                    className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-blue-300 transition-all"
+                  >
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-blue-600" />
-                        <span className="font-black text-lg text-blue-600 tracking-wider">{p.code}</span>
+                        <div className="px-3 py-1 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-mono font-black text-lg tracking-wider">
+                          {p.code}
+                        </div>
+                        <button
+                          onClick={() => handleCopy(p.code)}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                          title="Salin Kode Kupon"
+                        >
+                          {copiedCode === p.code ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                        </button>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-sm">{p.discount}</h3>
-                      <p className="text-xs text-gray-500">{p.min} • {p.exp}</p>
+
+                      <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">{p.discount}</h3>
+                      <p className="text-xs text-slate-500 font-medium">{p.min} • {p.exp}</p>
                     </div>
 
-                    <Link href="/produk" className="btn-primary text-xs px-5 py-2.5 shrink-0">
-                      Gunakan Kupon Ini
+                    <Link
+                      href="/produk"
+                      className="btn-primary text-xs px-6 py-3.5 rounded-xl shrink-0 font-bold flex items-center justify-center gap-2"
+                    >
+                      <span>Gunakan Kode Ini</span>
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 ))}

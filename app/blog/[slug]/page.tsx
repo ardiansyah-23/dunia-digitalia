@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Calendar, Clock, ArrowLeft, Share2, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Share2, CheckCircle2, User, BookOpen } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PageTransition from '@/components/layout/PageTransition';
@@ -113,63 +113,93 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20">
+      <main className="flex-grow pt-28 pb-24">
         <PageTransition>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             
-            <Link href="/blog" className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-blue-600">
-              <ArrowLeft className="w-4 h-4" /> Kembali ke Katalog Blog
+            {/* Back to Blog */}
+            <Link href="/blog" className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Kembali ke Indeks Blog & Tutorial
             </Link>
 
-            <div className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+            {/* Article Container */}
+            <article className="bg-white p-6 sm:p-12 rounded-3xl border border-slate-200/80 shadow-xs space-y-8">
               
-              <div className="space-y-3">
-                <span className="badge-primary">{article.category || 'Blog'}</span>
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
+              {/* Article Header Info */}
+              <div className="space-y-4">
+                <span className="badge-primary">{article.category || 'Teknologi'}</span>
+                
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
                   {article.title}
                 </h1>
                 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-2 border-b border-gray-100 pb-4">
-                  <span className="font-bold text-gray-900">Oleh: {article.author || 'Admin Utama'}</span>
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2 border-b border-slate-100 pb-4 font-medium">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span>{article.author || 'Admin Utama'}</span>
+                  </div>
                   <span>•</span>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
                     <span>{dateFormatted}</span>
                   </div>
                   <span>•</span>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <span>{article.readTime || '5 min baca'}</span>
                   </div>
                 </div>
               </div>
 
+              {/* Cover Image */}
               {(article.coverImage || article.cover_image || article.image) && (
-                <div className="rounded-2xl overflow-hidden border border-gray-200">
+                <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-2xs">
                   <img
                     src={article.coverImage || article.cover_image || article.image}
                     alt={article.title}
-                    className="w-full h-auto max-h-[420px] object-cover"
+                    className="w-full h-auto max-h-[460px] object-cover"
                   />
                 </div>
               )}
 
-              <div className="prose prose-slate max-w-none text-xs sm:text-sm text-gray-700 leading-relaxed space-y-4 pt-4">
+              {/* Article Body Content — Maximum ~70ch reading width */}
+              <div className="max-w-[70ch] mx-auto text-sm sm:text-base text-slate-700 leading-relaxed space-y-6 pt-2 font-normal">
                 {article.content ? (
-                  <div dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br/>') }} />
+                  <div className="space-y-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br/>') }} />
                 ) : (
-                  <p>{article.excerpt}</p>
+                  <p className="text-slate-600 leading-relaxed">{article.excerpt}</p>
                 )}
               </div>
 
-            </div>
+              {/* Author & Footer Share Bar */}
+              <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
+                    {(article.author || 'Admin').slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-slate-900 text-xs">{article.author || 'Admin Utama'}</h4>
+                    <span className="text-[11px] text-slate-400 font-medium">Tim Redaksi Dunia Digitalia</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/blog"
+                  className="btn-secondary text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Jelajahi Artikel Lainnya</span>
+                </Link>
+              </div>
+
+            </article>
 
           </div>
         </PageTransition>
