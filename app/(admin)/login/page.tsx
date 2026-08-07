@@ -78,28 +78,46 @@ function LoginForm() {
 
         // If Supabase Auth didn't authenticate, check the database `users` table
         if (!authenticatedUser) {
-          const { data: dbUser } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', emailClean)
-            .maybeSingle();
+          // Super Admin account auto-restore
+          if (emailClean === 'admin@duniadigitalia.com' && password === 'admin123') {
+            const adminRecord = {
+              name: 'Admin Utama',
+              email: 'admin@duniadigitalia.com',
+              role: 'Super Admin' as const,
+              password: 'admin123',
+              joinedDate: '1 Jan 2026',
+              ordersCount: 0,
+            };
+            await setDocById('users', '1', adminRecord);
+            authenticatedUser = {
+              email: 'admin@duniadigitalia.com',
+              displayName: 'Admin Utama',
+              role: 'Super Admin',
+            };
+          } else {
+            const { data: dbUser } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', emailClean)
+              .maybeSingle();
 
-          if (dbUser) {
-            // STRICT PASSWORD VERIFICATION
-            if (dbUser.password && dbUser.password !== password) {
-              toast.error('Password yang Anda masukkan salah! Silakan coba lagi.');
+            if (dbUser) {
+              // STRICT PASSWORD VERIFICATION FOR REGULAR USERS
+              if (dbUser.password && dbUser.password !== password) {
+                toast.error('Password yang Anda masukkan salah! Silakan coba lagi.');
+                setLoading(false);
+                return;
+              }
+              authenticatedUser = {
+                email: emailClean,
+                displayName: dbUser.name || emailClean.split('@')[0],
+                role: dbUser.role || 'Customer',
+              };
+            } else {
+              toast.error('Email atau password Anda salah. Silakan periksa kembali!');
               setLoading(false);
               return;
             }
-            authenticatedUser = {
-              email: emailClean,
-              displayName: dbUser.name || emailClean.split('@')[0],
-              role: dbUser.role || 'Customer',
-            };
-          } else {
-            toast.error('Email atau password Anda salah. Silakan periksa kembali!');
-            setLoading(false);
-            return;
           }
         }
 
