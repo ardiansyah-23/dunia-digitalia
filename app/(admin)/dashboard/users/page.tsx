@@ -102,8 +102,9 @@ export default function AdminUsersPage() {
       toast.success(editingUser ? 'Akses pengguna berhasil diperbarui!' : 'Pengguna baru berhasil ditambahkan!');
       setIsModalOpen(false);
       await loadData();
-    } catch (err) {
-      toast.error('Gagal menyimpan data pengguna ke database.');
+    } catch (err: any) {
+      console.error('Error saving user:', err);
+      toast.error(`Gagal menyimpan: ${err.message || 'Terjadi kesalahan pada database.'}`);
     } finally {
       setSaving(false);
     }
