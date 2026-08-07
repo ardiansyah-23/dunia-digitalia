@@ -90,10 +90,10 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 mt-10 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <p>© {new Date().getFullYear()} Dunia Digitalia. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link href="#" className="hover:text-gray-900">Kebijakan Privasi</Link>
-            <Link href="#" className="hover:text-gray-900">Syarat & Ketentuan</Link>
-            <Link href="#" className="hover:text-gray-900">Kebijakan Pengembalian</Link>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/kebijakan-privasi" className="hover:text-gray-900 transition-colors">Kebijakan Privasi</Link>
+            <Link href="/syarat-ketentuan" className="hover:text-gray-900 transition-colors">Syarat & Ketentuan</Link>
+            <Link href="/kebijakan-pengembalian" className="hover:text-gray-900 transition-colors">Kebijakan Pengembalian</Link>
           </div>
         </div>
       </div>
