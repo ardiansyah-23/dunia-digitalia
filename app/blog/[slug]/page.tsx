@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft, Share2, CheckCircle2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
@@ -26,6 +27,44 @@ Pastikan semua aset gambar menggunakan format modern seperti WebP atau JPEG terk
   }
 ];
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  let article = null;
+  try {
+    const data = await getCollection<any>('articles');
+    article = data.find((a) => a.slug === slug);
+  } catch (err) {}
+
+  if (!article) {
+    article = ARTICLES_DATA.find((a) => a.slug === slug) || ARTICLES_DATA[0];
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dunia-digitalia.vercel.app';
+  const pageUrl = `${siteUrl}/blog/${slug}`;
+  const imgUrl = article.coverImage || article.cover_image || article.image || `${siteUrl}/og-image.png`;
+
+  return {
+    title: article.title,
+    description: article.excerpt || article.description || `Baca artikel ${article.title} di Dunia Digitalia Blog.`,
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      title: article.title,
+      description: article.excerpt || article.description,
+      url: pageUrl,
+      type: 'article',
+      publishedTime: article.created_at,
+      authors: [article.author || 'Admin Utama'],
+      images: [{ url: imgUrl, alt: article.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt || article.description,
+      images: [imgUrl],
+    },
+  };
+}
+
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
@@ -45,8 +84,40 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
     : article.date || '2 Agustus 2026';
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://dunia-digitalia.vercel.app';
+  const imgUrl = article.coverImage || article.cover_image || article.image || `${siteUrl}/og-image.png`;
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.excerpt || article.description,
+    image: [imgUrl],
+    datePublished: article.created_at || new Date().toISOString(),
+    author: {
+      '@type': 'Person',
+      name: article.author || 'Admin Utama',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Dunia Digitalia',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/blog/${slug}`,
+    },
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <Navbar />
 
       <main className="flex-grow pt-28 pb-20">
@@ -59,31 +130,40 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
             <div className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 shadow-sm space-y-6">
               
-              <div className="space-y-3 border-b border-gray-100 pb-6">
-                <span className="badge-primary">{article.category}</span>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-snug">
+              <div className="space-y-3">
+                <span className="badge-primary">{article.category || 'Blog'}</span>
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
                   {article.title}
                 </h1>
-                <div className="flex items-center gap-4 text-xs text-gray-500 pt-2 font-medium">
-                  <span>Oleh <strong className="text-gray-900">{article.author || 'Admin Utama'}</strong></span>
+                
+                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 pt-2 border-b border-gray-100 pb-4">
+                  <span className="font-bold text-gray-900">Oleh: {article.author || 'Admin Utama'}</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {dateFormatted}</span>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{dateFormatted}</span>
+                  </div>
                   <span>•</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {article.readTime || '5 min baca'}</span>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{article.readTime || '5 min baca'}</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl overflow-hidden bg-gray-100 h-80">
-                <img
-                  src={article.image || article.cover_image || article.coverImage || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80'}
-                  alt={article.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              {(article.coverImage || article.cover_image || article.image) && (
+                <div className="rounded-2xl overflow-hidden border border-gray-200">
+                  <img
+                    src={article.coverImage || article.cover_image || article.image}
+                    alt={article.title}
+                    className="w-full h-auto max-h-[420px] object-cover"
+                  />
+                </div>
+              )}
 
-              <div className="prose prose-slate max-w-none text-gray-700 leading-relaxed text-sm space-y-4">
+              <div className="prose prose-slate max-w-none text-xs sm:text-sm text-gray-700 leading-relaxed space-y-4 pt-4">
                 {article.content ? (
-                  <div dangerouslySetInnerHTML={{ __html: article.content }} className="space-y-4" />
+                  <div dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br/>') }} />
                 ) : (
                   <p>{article.excerpt}</p>
                 )}
