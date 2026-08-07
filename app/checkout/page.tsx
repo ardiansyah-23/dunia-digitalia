@@ -11,6 +11,7 @@ import PageTransition from '@/components/layout/PageTransition';
 import { PRODUCTS_DATA } from '@/lib/constants/products';
 import { PaymentMethodCode } from '@/types';
 import { getCollection } from '@/lib/supabase/database';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const PAYMENT_METHODS: Array<{ code: PaymentMethodCode; name: string; category: string; iconText: string }> = [
   { code: 'QRIS', name: 'QRIS (BCA, OVO, ShopeePay, GoPay, Dana)', category: 'Instant QR', iconText: 'QR' },
@@ -25,6 +26,7 @@ const PAYMENT_METHODS: Array<{ code: PaymentMethodCode; name: string; category: 
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [selectedProduct, setSelectedProduct] = useState(PRODUCTS_DATA[0]);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -33,6 +35,20 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error('Silakan masuk (login) terlebih dahulu untuk membeli produk digital!');
+      const currentParams = window.location.search;
+      router.push(`/login?redirect=/checkout${currentParams}`);
+      return;
+    }
+
+    if (user) {
+      setCustomerName(user.displayName || '');
+      setCustomerEmail(user.email || '');
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -152,8 +168,9 @@ export default function CheckoutPage() {
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       required
+                      readOnly
                       placeholder="Budi Santoso"
-                      className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-xs text-gray-500 cursor-not-allowed focus:outline-none"
                     />
                   </div>
 
@@ -165,8 +182,9 @@ export default function CheckoutPage() {
                         value={customerEmail}
                         onChange={(e) => setCustomerEmail(e.target.value)}
                         required
+                        readOnly
                         placeholder="budi@example.com"
-                        className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                        className="w-full px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-xs text-gray-500 cursor-not-allowed focus:outline-none"
                       />
                     </div>
                     <div>

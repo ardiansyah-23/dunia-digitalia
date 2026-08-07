@@ -39,6 +39,9 @@ function LoginForm() {
       return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const redirectDest = params.get('redirect') || '/dashboard';
+
     try {
       if (activeTab === 'login') {
         try {
@@ -48,7 +51,7 @@ function LoginForm() {
         }
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Admin Utama' }));
         toast.success('Berhasil masuk ke Dashboard!');
-        router.push('/dashboard');
+        router.push(redirectDest);
       } else {
         // Register Tab
         try {
@@ -70,7 +73,7 @@ function LoginForm() {
 
         localStorage.setItem('admin_demo_user', JSON.stringify({ email, displayName: displayName || 'Pengguna Baru' }));
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
-        router.push('/dashboard');
+        router.push(redirectDest);
       }
     } catch (error: any) {
       console.error('Authentication error details:', error);
