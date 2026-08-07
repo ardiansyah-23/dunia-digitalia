@@ -72,8 +72,9 @@ function LoginForm() {
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
         router.push('/dashboard');
       }
-    } catch (error) {
-      toast.error('Terjadi kesalahan saat otentikasi.');
+    } catch (error: any) {
+      console.error('Authentication error details:', error);
+      toast.error(`Terjadi kesalahan: ${error.message || 'Gagal melakukan otentikasi.'}`);
     } finally {
       setLoading(false);
     }
