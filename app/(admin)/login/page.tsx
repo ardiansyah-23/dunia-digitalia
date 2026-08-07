@@ -94,6 +94,21 @@ function LoginForm() {
               displayName: 'Admin Utama',
               role: 'Super Admin',
             };
+          } else if (emailClean === 'superadmin@duniadigitalia.com' && password === 'superadmin123') {
+            const adminRecord = {
+              name: 'Super Admin',
+              email: 'superadmin@duniadigitalia.com',
+              role: 'Super Admin' as const,
+              password: 'superadmin123',
+              joinedDate: '1 Jan 2026',
+              ordersCount: 0,
+            };
+            await setDocById('users', '4', adminRecord);
+            authenticatedUser = {
+              email: 'superadmin@duniadigitalia.com',
+              displayName: 'Super Admin',
+              role: 'Super Admin',
+            };
           } else {
             const { data: dbUser } = await supabase
               .from('users')

@@ -90,6 +90,7 @@ export async function seedInitialSupabaseData() {
     // 6. Seed Users
     const initialUsers = [
       { id: '1', name: 'Admin Utama', email: 'admin@duniadigitalia.com', role: 'Super Admin' as const, password: 'admin123', joinedDate: '1 Jan 2026', ordersCount: 0 },
+      { id: '4', name: 'Super Admin', email: 'superadmin@duniadigitalia.com', role: 'Super Admin' as const, password: 'superadmin123', joinedDate: '1 Jan 2026', ordersCount: 0 },
       { id: '2', name: 'Budi Santoso', email: 'budi@example.com', role: 'Customer' as const, password: 'user123', joinedDate: '15 Jan 2026', ordersCount: 3 },
       { id: '3', name: 'Siti Rahma', email: 'siti@example.com', role: 'Customer' as const, password: 'user123', joinedDate: '20 Jan 2026', ordersCount: 1 },
     ];
