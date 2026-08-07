@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const redirectedRef = useRef(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const isLoginPage = pathname === '/login';
 
@@ -97,7 +98,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Admin / Customer Sidebar */}
-      <AdminSidebar mobileOpen={mobileMenuOpen} setMobileOpen={setMobileMenuOpen} />
+      <AdminSidebar
+        mobileOpen={mobileMenuOpen}
+        setMobileOpen={setMobileMenuOpen}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+      />
 
       {/* Main Content Body */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">{children}</main>
