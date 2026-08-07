@@ -15,8 +15,11 @@ import {
   Star,
   CreditCard,
   Tag,
+  Shield,
+  User as UserIcon,
 } from 'lucide-react';
 import { signOutUser } from '@/lib/supabase/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
 import toast from 'react-hot-toast';
 
 const ADMIN_MENU = [
@@ -29,13 +32,15 @@ const ADMIN_MENU = [
   { label: 'Galeri Media', href: '/dashboard/gallery', icon: ImageIcon },
   { label: 'Testimonial Klien', href: '/dashboard/testimonials', icon: Star },
   { label: 'Pesan Masuk', href: '/dashboard/messages', icon: MessageSquare },
-  { label: 'User & Akses', href: '/dashboard/users', icon: Users },
-  { label: 'Pengaturan Situs', href: '/dashboard/settings', icon: Settings },
+  { label: 'User & Akses', href: '/dashboard/users', icon: Users, roles: ['Super Admin'] },
+  { label: 'Pengaturan Situs', href: '/dashboard/settings', icon: Settings, roles: ['Super Admin'] },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuth();
+  const role = user?.role || 'Customer';
 
   const handleLogout = async () => {
     try {
@@ -58,14 +63,19 @@ export default function AdminSidebar() {
         <div>
           <h2 className="font-extrabold text-gray-900 text-sm whitespace-nowrap">Dunia Digitalia</h2>
           <span className="text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded whitespace-nowrap">
-            Admin Marketplace
+            Admin Panel
           </span>
         </div>
       </div>
 
       {/* Nav List */}
       <nav className="flex-grow p-4 space-y-1.5 overflow-y-auto">
-        {ADMIN_MENU.map((item) => {
+        {ADMIN_MENU.filter((item) => {
+          if (item.roles) {
+            return item.roles.includes(role);
+          }
+          return role === 'Super Admin' || role === 'Admin';
+        }).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
@@ -84,6 +94,29 @@ export default function AdminSidebar() {
           );
         })}
       </nav>
+
+      {/* User Session Info Card */}
+      {user && (
+        <div className="p-4 mx-4 mb-2 bg-slate-50 border border-gray-200 rounded-2xl space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+              <UserIcon className="w-4 h-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-gray-900 truncate leading-none mb-1">
+                {user.displayName || 'Pengguna'}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate leading-none">
+                {user.email}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] font-bold bg-white border border-gray-200 px-2.5 py-1 rounded-lg w-fit text-blue-600">
+            <Shield className="w-3 h-3" />
+            <span>{role}</span>
+          </div>
+        </div>
+      )}
 
       {/* Footer / Logout */}
       <div className="p-4 border-t border-gray-100">

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -14,10 +15,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isLoginPage = pathname === '/login';
 
   useEffect(() => {
-    if (!loading && !user && !isLoginPage) {
-      router.push('/login');
+    if (!loading) {
+      if (!user && !isLoginPage) {
+        router.push('/login');
+      } else if (user) {
+        // 1. Block Customers from accessing dashboard
+        if (user.role === 'Customer') {
+          toast.error('Akses ditolak: Akun Anda tidak memiliki hak akses administrator.');
+          router.push('/');
+        } 
+        // 2. Block standard Admins from Super Admin pages
+        else if (user.role === 'Admin') {
+          if (pathname === '/dashboard/users' || pathname === '/dashboard/settings') {
+            toast.error('Akses ditolak: Hanya Super Admin yang dapat mengakses halaman ini.');
+            router.push('/dashboard');
+          }
+        }
+      }
     }
-  }, [user, loading, isLoginPage, router]);
+  }, [user, loading, isLoginPage, pathname, router]);
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -31,7 +47,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!user) return null;
+  // Double check role protection to prevent flash of content
+  if (!user || user.role === 'Customer') return null;
+  if (user.role === 'Admin' && (pathname === '/dashboard/users' || pathname === '/dashboard/settings')) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-gray-800">
