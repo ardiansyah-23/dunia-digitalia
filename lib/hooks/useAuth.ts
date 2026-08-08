@@ -77,12 +77,24 @@ export function useAuth(): AuthState {
       }
     };
 
-    const localUser = resolveLocalUser();
-    if (localUser) {
-      setUser(localUser);
-      setLoading(false);
-      resolveRole(localUser.email, localUser.displayName);
-    }
+    const updateFromLocal = () => {
+      const localUser = resolveLocalUser();
+      if (localUser) {
+        setUser(localUser);
+        setLoading(false);
+        resolveRole(localUser.email, localUser.displayName);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    };
+
+    // Initial check
+    updateFromLocal();
+
+    // Event listeners for login / logout in same or other tabs
+    window.addEventListener('storage', updateFromLocal);
+    window.addEventListener('auth_change', updateFromLocal);
 
     const unsubscribe = onAuthChange((sbUser) => {
       if (sbUser) {
@@ -106,6 +118,8 @@ export function useAuth(): AuthState {
 
     return () => {
       cancelled = true;
+      window.removeEventListener('storage', updateFromLocal);
+      window.removeEventListener('auth_change', updateFromLocal);
       unsubscribe();
     };
   }, []);

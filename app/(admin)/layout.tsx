@@ -49,13 +49,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  // Show brief loader ONLY if we genuinely don't know who the user is yet
-  if (loading && !user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-gray-800">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      </div>
-    );
+  // Show brief loader if loading or if resolving user from localStorage
+  if (loading || !user) {
+    if (!isLoginPage && typeof window !== 'undefined' && localStorage.getItem('admin_demo_user')) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center text-gray-800">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+            <span className="text-xs font-semibold text-gray-500">Memuat Dashboard...</span>
+          </div>
+        </div>
+      );
+    }
   }
 
   // No user and not loading = redirect in progress

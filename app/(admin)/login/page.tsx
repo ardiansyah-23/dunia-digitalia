@@ -137,6 +137,9 @@ function LoginForm() {
         }
 
         localStorage.setItem('admin_demo_user', JSON.stringify(authenticatedUser));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth_change'));
+        }
         toast.success('Berhasil masuk ke Dashboard!');
         router.replace(redirectDest);
       } else if (activeTab === 'register') {
@@ -157,7 +160,11 @@ function LoginForm() {
         };
         await setDocById('users', uId, newUserRecord);
 
-        localStorage.setItem('admin_demo_user', JSON.stringify({ email: emailClean, displayName: displayName || 'Pengguna Baru', role: 'Customer' }));
+        const newUserState = { email: emailClean, displayName: displayName || 'Pengguna Baru', role: 'Customer' };
+        localStorage.setItem('admin_demo_user', JSON.stringify(newUserState));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('auth_change'));
+        }
         toast.success('Pendaftaran akun berhasil! Mengalihkan ke dashboard...');
         router.replace(redirectDest);
       }
