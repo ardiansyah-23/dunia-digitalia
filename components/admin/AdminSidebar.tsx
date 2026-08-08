@@ -111,13 +111,26 @@ export default function AdminSidebar({
 
       {/* Sidebar Drawer / Desktop Collapsible Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 flex flex-col h-full shadow-xl transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 lg:shadow-xs shrink-0 ${
+        className={`relative fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 flex flex-col h-full shadow-xl transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 lg:shadow-xs shrink-0 ${
           mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0'
         } ${isCollapsed ? 'lg:w-20' : 'lg:w-72'}`}
       >
+        {/* Desktop Floating Toggle Button */}
+        <button
+          onClick={toggleCollapse}
+          title={isCollapsed ? 'Buka Panel Samping' : 'Tutup / Lipat Panel Samping'}
+          className="hidden lg:flex absolute -right-3.5 top-6 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-md items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-400 transition-all z-30 group"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+          ) : (
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          )}
+        </button>
+
         {/* Header */}
-        <div className={`p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between gap-2 ${isCollapsed ? 'lg:px-3 lg:justify-center' : ''}`}>
-          <div className="flex items-center gap-3 min-w-0">
+        <div className={`p-4 sm:p-5 border-b border-gray-100 flex items-center ${isCollapsed ? 'lg:justify-center' : 'justify-between gap-3'}`}>
+          <div className={`flex items-center gap-3 min-w-0 ${isCollapsed ? 'lg:justify-center' : ''}`}>
             <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shrink-0 shadow-md shadow-blue-500/20">
               D
             </div>
@@ -144,15 +157,6 @@ export default function AdminSidebar({
             className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
-
-          {/* Desktop Collapse Toggle Button */}
-          <button
-            onClick={toggleCollapse}
-            title={isCollapsed ? 'Buka Panel Samping' : 'Tutup / Lipat Panel Samping'}
-            className="hidden lg:flex p-1.5 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors shrink-0"
-          >
-            {isCollapsed ? <ChevronRight className="w-5 h-5 text-blue-600" /> : <ChevronLeft className="w-5 h-5" />}
           </button>
         </div>
 
