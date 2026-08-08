@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Edit2, Trash2, Loader2, ArrowUp, ArrowDown, Star, ShoppingBag, ExternalLink, ArrowRight } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Loader2, ArrowUp, ArrowDown, Star, ShoppingBag, ExternalLink, ArrowRight, ArrowLeft, Check, Download, ShieldCheck } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichEditor from '@/components/admin/RichEditor';
 import toast from 'react-hot-toast';
@@ -22,6 +22,9 @@ export default function AdminProductsPage() {
   const [selectedCat, setSelectedCat] = useState('All');
   const [sortBy, setSortBy] = useState('position');
   const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Customer Selected Product Detail state inside dashboard
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -228,6 +231,137 @@ export default function AdminProductsPage() {
   // CUSTOMER DASHBOARD PRODUCT CATALOG VIEW
   // ============================================
   if (isCustomer) {
+    // Selected Product In-Dashboard Detail View
+    if (selectedProduct) {
+      return (
+        <div className="space-y-6">
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4" /> Kembali ke Katalog Produk Digital
+          </button>
+
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-8 space-y-6">
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="badge-primary">{selectedProduct.category}</span>
+                  {selectedProduct.version && (
+                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-0.5 rounded-full">
+                      Versi {selectedProduct.version}
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-snug">
+                  {selectedProduct.title}
+                </h1>
+
+                <div className="flex items-center gap-4 text-xs text-slate-500 font-semibold pt-1">
+                  <div className="flex items-center gap-1.5 text-amber-500 font-bold">
+                    <Star className="w-4 h-4 fill-amber-400" />
+                    <span>{selectedProduct.rating || 5.0}</span>
+                    <span className="text-slate-400 font-normal">({selectedProduct.reviewCount || 10} ulasan)</span>
+                  </div>
+                  <span>•</span>
+                  <span>{selectedProduct.salesCount || 0} Terjual</span>
+                </div>
+              </div>
+
+              {/* Thumbnail Preview */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden p-2">
+                <img
+                  src={selectedProduct.thumbnail}
+                  alt={selectedProduct.title}
+                  className="w-full h-auto max-h-[420px] object-cover rounded-2xl"
+                />
+              </div>
+
+              {/* Product Description */}
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+                <h2 className="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-3">Deskripsi & Fitur Produk</h2>
+                <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line space-y-3 font-normal" dangerouslySetInnerHTML={{ __html: selectedProduct.description || selectedProduct.shortDescription }} />
+
+                {selectedProduct.features && selectedProduct.features.length > 0 && (
+                  <div className="pt-4 border-t border-slate-100 space-y-3">
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Fitur Unggulan:</h3>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {selectedProduct.features.map((feat: string, idx: number) => (
+                        <div key={idx} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center gap-2.5 text-xs font-semibold text-slate-800">
+                          <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <Check className="w-3 h-3" />
+                          </div>
+                          <span>{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sidebar Purchase Box */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md space-y-6 sticky top-24">
+                <div className="space-y-1">
+                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Harga Lisensi Resmi</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-slate-900">
+                      Rp {Number(selectedProduct.price).toLocaleString('id-ID')}
+                    </span>
+                    {selectedProduct.discountPrice && Number(selectedProduct.discountPrice) > 0 && (
+                      <span className="text-xs text-slate-400 line-through font-semibold">
+                        Rp {Number(selectedProduct.discountPrice).toLocaleString('id-ID')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-3 border-t border-slate-100 text-xs text-slate-600 font-medium">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Metode Pengiriman</span>
+                    <span className="font-bold text-emerald-600 flex items-center gap-1">
+                      <Download className="w-3.5 h-3.5" /> Instant Download
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Jenis Lisensi</span>
+                    <span className="font-bold text-slate-900">Personal & Komersial</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <Link
+                    href={`/checkout?product=${selectedProduct.id}`}
+                    className="btn-primary w-full py-4 text-xs font-bold flex items-center justify-center gap-2 rounded-2xl shadow-lg shadow-blue-500/20"
+                  >
+                    <ShoppingBag className="w-4 h-4" /> Beli Sekarang
+                  </Link>
+
+                  {selectedProduct.demoUrl && (
+                    <a
+                      href={selectedProduct.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary w-full py-3 text-xs font-bold flex items-center justify-center gap-2 rounded-2xl"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Lihat Live Demo Preview
+                    </a>
+                  )}
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-bold flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Garansi 100% Bebas Virus & Bebas Malware</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
         <div>
@@ -275,7 +409,7 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* Customer Product Cards Grid */}
+        {/* Customer Product Cards Grid — Clean & Uncluttered */}
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
@@ -300,18 +434,21 @@ export default function AdminProductsPage() {
                     </span>
                   </div>
 
-                  <div className="p-5 space-y-2.5">
+                  <div className="p-5 space-y-2">
                     <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold">
                       <Star className="w-4 h-4 fill-amber-400" />
                       <span>{product.rating || 5.0}</span>
                       <span className="text-gray-400 font-normal">({product.reviewCount || 10} ulasan)</span>
                     </div>
 
-                    <Link href={`/produk/${product.slug}`} className="block">
-                      <h3 className="font-extrabold text-gray-900 text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <button
+                      onClick={() => setSelectedProduct(product)}
+                      className="text-left w-full block group-hover:text-blue-600 transition-colors"
+                    >
+                      <h3 className="font-extrabold text-gray-900 text-base leading-snug line-clamp-2">
                         {product.title}
                       </h3>
-                    </Link>
+                    </button>
 
                     <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
                       {product.shortDescription || product.description?.replace(/<[^>]*>/g, '').slice(0, 100)}
@@ -330,12 +467,21 @@ export default function AdminProductsPage() {
                       Rp {Number(product.price).toLocaleString('id-ID')}
                     </span>
                   </div>
-                  <Link
-                    href={`/checkout?product=${product.id}`}
-                    className="btn-primary text-xs px-4 py-2 rounded-xl shadow-xs font-bold"
-                  >
-                    Beli Sekarang
-                  </Link>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedProduct(product)}
+                      className="btn-secondary text-xs px-3 py-2 rounded-xl font-bold"
+                    >
+                      Detail
+                    </button>
+                    <Link
+                      href={`/checkout?product=${product.id}`}
+                      className="btn-primary text-xs px-4 py-2 rounded-xl shadow-xs font-bold"
+                    >
+                      Beli
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
