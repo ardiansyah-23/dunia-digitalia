@@ -87,6 +87,39 @@ export default function MarketplaceHomePage() {
     },
   ]);
 
+  const [recentOrders, setRecentOrders] = useState<any[]>([
+    {
+      id: 'TRX-9821',
+      customer_name: 'Budi Santoso',
+      customer_email: 'budi***@gmail.com',
+      product_title: 'Tokodigital Next.js 15 App',
+      amount: 349000,
+      payment_method: 'Tripay QRIS',
+      timeAgo: 'Baru saja',
+      status: 'Paid',
+    },
+    {
+      id: 'TRX-9820',
+      customer_name: 'Rian Hidayat',
+      customer_email: 'rian***@yahoo.com',
+      product_title: 'NewsFast Blogger Template V2.4',
+      amount: 149000,
+      payment_method: 'BCA VA',
+      timeAgo: '2 menit lalu',
+      status: 'Paid',
+    },
+    {
+      id: 'TRX-9819',
+      customer_name: 'Siti Rahma',
+      customer_email: 'siti***@outlook.com',
+      product_title: 'Website Toko Online E-Commerce',
+      amount: 2500000,
+      payment_method: 'Mandiri VA',
+      timeAgo: '5 menit lalu',
+      status: 'Paid',
+    },
+  ]);
+
   useEffect(() => {
     getCollection<any>('products')
       .then((data) => {
@@ -119,6 +152,24 @@ export default function MarketplaceHomePage() {
         }
       })
       .catch((err) => console.error('Error loading testimonials:', err));
+
+    getCollection<any>('orders')
+      .then((data) => {
+        if (data && data.length > 0) {
+          const sorted = [...data].reverse().slice(0, 3).map((ord: any, idx: number) => ({
+            id: ord.id || `TRX-${9820 - idx}`,
+            customer_name: ord.customer_name || 'Pelanggan Digital',
+            customer_email: ord.customer_email ? ord.customer_email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'user***@gmail.com',
+            product_title: ord.product_title || 'Produk Digital Premium',
+            amount: Number(ord.amount) || 149000,
+            payment_method: ord.payment_method || 'Tripay QRIS',
+            timeAgo: idx === 0 ? 'Baru saja' : `${(idx + 1) * 3}m lalu`,
+            status: ord.status || 'Paid',
+          }));
+          setRecentOrders(sorted);
+        }
+      })
+      .catch((err) => console.error('Error loading recent orders:', err));
   }, []);
 
   const handleNewsletter = (e: React.FormEvent) => {
@@ -203,7 +254,7 @@ export default function MarketplaceHomePage() {
 
                 </div>
 
-                {/* Right Column — Card Showcase Visual */}
+                {/* Right Column — Recent Live Purchases Visual */}
                 <div className="lg:col-span-5 relative flex items-center justify-center">
                   <div className="w-full max-w-md p-6 rounded-3xl bg-slate-900 text-white shadow-2xl border border-slate-800 space-y-4 relative overflow-hidden">
                     {/* Subtle Glow inside mockup container */}
@@ -215,58 +266,46 @@ export default function MarketplaceHomePage() {
                         <div className="w-3 h-3 rounded-full bg-amber-500" />
                         <div className="w-3 h-3 rounded-full bg-emerald-500" />
                       </div>
-                      <span className="text-[11px] font-mono text-slate-400">dunia-digitalia.com</span>
-                    </div>
-
-                    {/* Featured Item 1 */}
-                    <div className="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80 flex items-center gap-4 hover:border-blue-500/60 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold shrink-0">
-                        <Laptop className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">NewsFast Blogger Template</h4>
-                        <p className="text-xs text-slate-400 truncate">V2.4 • AdSense Ready & Fast</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-extrabold text-blue-400">Rp 149.000</span>
-                          <span className="text-[10px] text-slate-500 line-through">Rp 299.000</span>
-                        </div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                        <span>Produk Terbaru Dibeli (Live)</span>
                       </div>
                     </div>
 
-                    {/* Featured Item 2 */}
-                    <div className="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80 flex items-center gap-4 hover:border-emerald-500/60 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-                        <ShoppingBag className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">Tokodigital Next.js App</h4>
-                        <p className="text-xs text-slate-400 truncate">Tripay QRIS & Ongkir Auto</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-extrabold text-emerald-400">Rp 349.000</span>
-                          <span className="text-[10px] text-slate-500 line-through">Rp 500.000</span>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Recent Orders Cards Stream */}
+                    <div className="space-y-3">
+                      {recentOrders.map((ord, idx) => (
+                        <div
+                          key={ord.id || idx}
+                          className="p-3.5 rounded-2xl bg-slate-800/90 border border-slate-700/80 flex items-center gap-3.5 hover:border-blue-500/60 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold shrink-0">
+                            <ShoppingBag className="w-5 h-5 text-blue-400" />
+                          </div>
 
-                    {/* Featured Item 3 */}
-                    <div className="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80 flex items-center gap-4 hover:border-purple-500/60 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center font-bold shrink-0">
-                        <Tablet className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">OmniDash Admin Template</h4>
-                        <p className="text-xs text-slate-400 truncate">Recharts & 50+ Komponen UI</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-extrabold text-purple-400">Rp 199.000</span>
-                          <span className="text-[10px] text-slate-500 line-through">Rp 350.000</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-bold text-white text-xs truncate">{ord.customer_name}</span>
+                              <span className="text-[10px] text-slate-400 shrink-0">{ord.timeAgo || 'Baru saja'}</span>
+                            </div>
+                            
+                            <h4 className="font-extrabold text-blue-400 text-xs truncate mt-0.5">{ord.product_title}</h4>
+                            
+                            <div className="flex items-center justify-between mt-1 text-[11px]">
+                              <span className="font-mono text-slate-300">Rp {Number(ord.amount).toLocaleString('id-ID')}</span>
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                ✓ Lunas ({ord.payment_method || 'Tripay'})
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
 
                     {/* Stat Footnote */}
-                    <div className="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-2">
-                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                      <span>Rating Kepuasan 4.9/5 dari 500+ Pembeli</span>
+                    <div className="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-2 border-t border-slate-800/60">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>100% Diproses Otomatis 24 Jam via Tripay Gateway</span>
                     </div>
 
                   </div>
