@@ -179,7 +179,7 @@ export default function PaymentInstructionPage({ params }: { params: Promise<{ o
     <div className="flex flex-col min-h-screen bg-slate-50 text-gray-800">
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20">
+      <main className="flex-grow pt-6 pb-16">
         <PageTransition>
           <Suspense fallback={<div className="text-center py-20 text-xs text-gray-500">Loading...</div>}>
             <PaymentInstructionContent params={params} />

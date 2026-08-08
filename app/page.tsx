@@ -140,7 +140,7 @@ export default function MarketplaceHomePage() {
           {/* ============================================
              1. HERO SECTION
              ============================================ */}
-          <section className="relative bg-white border-b border-slate-200/80 pt-8 pb-16 lg:pt-12 lg:pb-24 overflow-hidden">
+          <section className="relative bg-white border-b border-slate-200/80 pt-4 pb-12 lg:pt-6 lg:pb-20 overflow-hidden">
             {/* Background Subtle Gradient Glow */}
             <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
