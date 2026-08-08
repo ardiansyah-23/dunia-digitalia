@@ -120,7 +120,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       />
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-24">
+      <main className="flex-grow pt-10 pb-20">
         <PageTransition>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             

@@ -212,7 +212,7 @@ export default function ProductsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
       <Navbar />
-      <main className="flex-grow pt-28 pb-24">
+      <main className="flex-grow pt-10 pb-20">
         <PageTransition>
           <Suspense fallback={<div className="text-center py-20 text-xs text-slate-500">Loading catalog...</div>}>
             <ProductsCatalogContent />
