@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Edit2, Trash2, CheckCircle2, Loader2, ArrowRight, Check, MessageSquare, ArrowLeft, Clock, ShieldCheck, FileText, Layers, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckCircle2, Loader2, ArrowRight, Check, MessageSquare, Clock, ShieldCheck, Sparkles, X, PhoneCall } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getCollection, setDocById, deleteDocById } from '@/lib/supabase/database';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -33,7 +33,7 @@ export default function AdminServicesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  // Selected Service for In-Dashboard Detail View
+  // Selected Service for In-Dashboard Modal Detail View
   const [selectedService, setSelectedService] = useState<ServicePackage | null>(null);
 
   // Form states
@@ -140,132 +140,16 @@ export default function AdminServicesPage() {
   // CUSTOMER DASHBOARD SERVICES CATALOG VIEW
   // ============================================
   if (isCustomer) {
-    // If a service detail is selected inside the dashboard
-    if (selectedService) {
-      const fullService = AGENCY_SERVICES.find(s => s.slug === selectedService.slug || s.title === selectedService.title) || selectedService;
-      const whatsappUrl = `https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-        `Halo Dunia Digitalia, saya ingin berkonsultasi mengenai Jasa Pembuatan ${fullService.title} (Mulai Rp ${fullService.startingPrice.toLocaleString('id-ID')}).`
-      )}`;
+    const fullService = selectedService
+      ? AGENCY_SERVICES.find(s => s.slug === selectedService.slug || s.title === selectedService.title) || selectedService
+      : null;
 
-      return (
-        <div className="space-y-6">
-          {/* Back Button */}
-          <button
-            onClick={() => setSelectedService(null)}
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs"
-          >
-            <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Layanan Website
-          </button>
+    const whatsappUrl = fullService
+      ? `https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+          `Halo Dunia Digitalia, saya ingin berkonsultasi mengenai Jasa Pembuatan ${fullService.title} (Mulai Rp ${fullService.startingPrice.toLocaleString('id-ID')}).`
+        )}`
+      : '';
 
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
-            {/* Left Detail Body */}
-            <div className="lg:col-span-8 space-y-6">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="badge-primary">Layanan Web Development</span>
-                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-blue-600" /> Estimasi: {fullService.estimatedDays || '3 - 5 Hari'}
-                  </span>
-                </div>
-
-                <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
-                  Jasa Pembuatan {fullService.title}
-                </h1>
-
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                  {fullService.description}
-                </p>
-              </div>
-
-              {/* Long Description */}
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-                <h2 className="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-3">Deskripsi Lengkap & Gambaran Layanan</h2>
-                <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line space-y-3 font-normal">
-                  {fullService.longDescription || fullService.description}
-                </div>
-              </div>
-
-              {/* All Features Grid */}
-              {fullService.features && fullService.features.length > 0 && (
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
-                    <h2 className="text-lg font-extrabold text-slate-900">Fitur & Fasilitas yang Didapat</h2>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {fullService.features.map((feature: string, idx: number) => (
-                      <div key={idx} className="p-3 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center gap-2.5 text-xs font-semibold text-slate-800">
-                        <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                          <Check className="w-3 h-3" />
-                        </div>
-                        <span>{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Right Purchase Sidebar */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md space-y-6 sticky top-24">
-                <div className="space-y-1">
-                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Investasi Mulai Dari</span>
-                  <div className="text-3xl font-black text-blue-600">
-                    Rp {fullService.startingPrice?.toLocaleString('id-ID')}
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-3 border-t border-slate-100 text-xs text-slate-600 font-medium">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Estimasi Waktu</span>
-                    <span className="font-bold text-slate-900">{fullService.estimatedDays || '3 - 7 Hari'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Garansi Maintenance</span>
-                    <span className="font-bold text-emerald-600">30 - 60 Hari</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Kustomisasi Layout</span>
-                    <span className="font-bold text-slate-900">100% Sesuai Request</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 border-none shadow-md shadow-emerald-500/20"
-                  >
-                    <MessageSquare className="w-4 h-4" /> Konsultasi & Pesan via WA
-                  </a>
-
-                  <Link
-                    href="/contact"
-                    className="btn-secondary w-full py-3 text-xs font-bold flex items-center justify-center gap-2 rounded-2xl"
-                  >
-                    <span>Formulir Kontak Konsultasi</span>
-                  </Link>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200/80 text-blue-950 text-[11px] font-semibold space-y-1">
-                  <div className="flex items-center gap-1.5 text-blue-900 font-bold">
-                    <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span>Garansi Maintenance & Bug Fix</span>
-                  </div>
-                  <p className="text-[10px] text-blue-800 leading-relaxed font-normal">
-                    Setiap pengerjaan dibantu tim developer berpengalaman dengan garansi perbaikan penuh.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Default Customer Cards View — Clean & Uncluttered
     return (
       <div className="space-y-6">
         <div>
@@ -273,6 +157,7 @@ export default function AdminServicesPage() {
           <p className="text-xs text-gray-500">Pilih paket layanan web development kustom sesuai skala bisnis Anda.</p>
         </div>
 
+        {/* Cards Grid */}
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
@@ -299,7 +184,6 @@ export default function AdminServicesPage() {
                     </div>
                   </div>
 
-                  {/* Clean 3 Bullet Points max */}
                   <ul className="space-y-2 text-xs text-slate-700 font-medium">
                     {(s.features || []).slice(0, 3).map((f: string) => (
                       <li key={f} className="flex items-center gap-2">
@@ -325,6 +209,99 @@ export default function AdminServicesPage() {
             ))}
           </div>
         )}
+
+        {/* ULTRA-PREMIUM SLIDE-OVER DETAIL MODAL */}
+        {fullService && (
+          <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fadeIn">
+            <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 relative">
+              
+              {/* Top Modal Header */}
+              <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div className="space-y-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    <Sparkles className="w-3 h-3 text-blue-600" /> Web Development Agency
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                    Jasa Pembuatan {fullService.title}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setSelectedService(null)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  aria-label="Tutup"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Price & Delivery Card Banner */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md shadow-blue-500/20">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-200 block">Investasi Proyek</span>
+                  <div className="text-2xl sm:text-3xl font-black mt-0.5">
+                    Rp {fullService.startingPrice?.toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-xl border border-white/20 text-xs font-semibold text-white shrink-0">
+                  <Clock className="w-4 h-4 text-amber-300" />
+                  <span>Estimasi: {fullService.estimatedDays || '3 - 5 Hari'}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Ringkasan Layanan</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {fullService.longDescription || fullService.description}
+                </p>
+              </div>
+
+              {/* Features List */}
+              {fullService.features && fullService.features.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Fitur & Fasilitas Lengkap</h3>
+                  <div className="grid sm:grid-cols-2 gap-2.5">
+                    {fullService.features.map((feature: string, idx: number) => (
+                      <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-xs font-semibold text-slate-800">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Support & Guarantee Badge */}
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-semibold flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div>
+                  <h4 className="font-bold text-emerald-900">Garansi Maintenance & Bug Fix 30-60 Hari</h4>
+                  <p className="text-[11px] text-emerald-800 font-normal">Pengerjaan ditangani arsitek software berpengalaman dengan garansi pendampingan penuh.</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-3">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 border-none shadow-md shadow-emerald-500/20"
+                >
+                  <MessageSquare className="w-4 h-4" /> Konsultasi & Pesan via WA
+                </a>
+                <button
+                  onClick={() => setSelectedService(null)}
+                  className="btn-secondary w-full sm:w-auto py-3.5 px-6 text-xs font-bold rounded-2xl shrink-0"
+                >
+                  Tutup
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
