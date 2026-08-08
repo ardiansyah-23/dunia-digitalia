@@ -179,9 +179,6 @@ export default function DashboardPage() {
             <div className="p-12 text-center text-gray-400 space-y-3">
               <AlertCircle className="w-12 h-12 mx-auto text-gray-300" />
               <p className="text-sm font-medium">Anda belum pernah melakukan pembelian produk digital.</p>
-              <Link href="/produk" className="btn-secondary text-xs px-5 py-2 inline-block">
-                Mulai Belanja Sekarang
-              </Link>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
