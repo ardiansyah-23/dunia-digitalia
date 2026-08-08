@@ -2,14 +2,19 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Edit2, Trash2, Loader2, ArrowUp, ArrowDown } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, Search, Edit2, Trash2, Loader2, ArrowUp, ArrowDown, Star, ShoppingBag, ExternalLink, ArrowRight } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import RichEditor from '@/components/admin/RichEditor';
 import toast from 'react-hot-toast';
 import { getCollection, setDocById, deleteDocById, isMockDatabase } from '@/lib/supabase/database';
 import { CATEGORIES_DATA } from '@/lib/constants/categories';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function AdminProductsPage() {
+  const { user } = useAuth();
+  const isCustomer = user?.role === 'Customer';
+
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,7 +39,6 @@ export default function AdminProductsPage() {
   async function loadProducts() {
     try {
       const data = await getCollection<any>('products');
-      // Sort by position ascending initially
       const sorted = (data || []).sort((a: any, b: any) => {
         const posA = Number(a.position) || 0;
         const posB = Number(b.position) || 0;
@@ -85,7 +89,6 @@ export default function AdminProductsPage() {
     const id = editingId || `prod-${Date.now()}`;
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-    // Auto calculate new position for new items (max position + 10)
     const existingPosList = products.map(p => Number(p.position) || 0);
     const maxPos = existingPosList.length > 0 ? Math.max(...existingPosList) : 0;
     const position = editingId
@@ -100,18 +103,17 @@ export default function AdminProductsPage() {
       category,
       price: Number(price),
       discountPrice: Number(discountPrice) || 0,
-      version,
+      rating: editingId ? (products.find(p => p.id === editingId)?.rating || 5.0) : 5.0,
+      reviewCount: editingId ? (products.find(p => p.id === editingId)?.reviewCount || 1) : 1,
+      salesCount: editingId ? (products.find(p => p.id === editingId)?.salesCount || 0) : 0,
+      thumbnail: thumbnail || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
       demoUrl,
       downloadUrl,
-      thumbnail: thumbnail || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
-      screenshots: [],
-      features: features.split('\n').filter(Boolean),
-      salesCount: editingId ? (products.find(p => p.id === editingId)?.salesCount || 0) : 0,
-      rating: editingId ? (products.find(p => p.id === editingId)?.rating || 5.0) : 5.0,
-      reviewCount: editingId ? (products.find(p => p.id === editingId)?.reviewCount || 0) : 0,
-      isFeatured: true,
-      position: Number(position),
+      version: version || 'v1.0.0',
+      features: features.split('\n').filter(f => f.trim().length > 0),
+      position,
       createdAt: editingId ? (products.find(p => p.id === editingId)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     try {
@@ -122,14 +124,15 @@ export default function AdminProductsPage() {
       setIsModalOpen(false);
       resetForm();
       loadProducts();
-    } catch (err) {
+    } catch (err: any) {
       toast.dismiss();
-      toast.error('Gagal menyimpan produk ke database.');
+      toast.error(`Gagal menyimpan produk: ${err.message || 'Error Supabase RLS / koneksi'}`);
     }
   };
 
   const resetForm = () => {
     setTitle('');
+    setCategory('Template Blogger');
     setPrice(149000);
     setDiscountPrice(199000);
     setVersion('v1.0.0');
@@ -141,12 +144,12 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus produk ini secara permanen dari database?')) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus produk ini?')) return;
     try {
       toast.loading('Menghapus produk...');
       await deleteDocById('products', id);
       toast.dismiss();
-      toast.success('Produk berhasil dihapus dari database!');
+      toast.success('Produk berhasil dihapus!');
       loadProducts();
     } catch (err) {
       toast.dismiss();
@@ -154,7 +157,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Reorder/Position Swapping
   const handleMoveUp = async (index: number) => {
     if (index === 0) return;
     const current = filteredProducts[index];
@@ -197,7 +199,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Group, Sort, and Search
   const filteredProducts = useMemo(() => {
     let result = products.filter(p =>
       (p.title || '').toLowerCase().includes(search.toLowerCase())
@@ -223,6 +224,130 @@ export default function AdminProductsPage() {
     return result;
   }, [products, search, selectedCat, sortBy]);
 
+  // ============================================
+  // CUSTOMER DASHBOARD PRODUCT CATALOG VIEW
+  // ============================================
+  if (isCustomer) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Katalog Produk Digital</h1>
+          <p className="text-xs text-gray-500">Pilih dan beli template Blogger, source code, serta produk digital terverifikasi langsung dari portal Anda.</p>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto w-full md:w-auto">
+            <button
+              onClick={() => setSelectedCat('All')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                selectedCat === 'All'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Semua Produk ({products.length})
+            </button>
+            {CATEGORIES_DATA.slice(0, 6).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCat(cat.name)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  selectedCat === cat.name
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative w-full md:w-64 shrink-0">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Cari produk digital..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Customer Product Cards Grid */}
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center text-gray-500 text-xs">
+            Tidak ada produk yang cocok dengan pencarian Anda.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="card-product overflow-hidden flex flex-col justify-between group">
+                <div>
+                  <div className="h-44 relative bg-gray-100 overflow-hidden">
+                    <img
+                      src={product.thumbnail}
+                      alt={product.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/90 text-gray-900 backdrop-blur-xs shadow-2xs">
+                      {product.category}
+                    </span>
+                  </div>
+
+                  <div className="p-5 space-y-2.5">
+                    <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold">
+                      <Star className="w-4 h-4 fill-amber-400" />
+                      <span>{product.rating || 5.0}</span>
+                      <span className="text-gray-400 font-normal">({product.reviewCount || 10} ulasan)</span>
+                    </div>
+
+                    <Link href={`/produk/${product.slug}`} className="block">
+                      <h3 className="font-extrabold text-gray-900 text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {product.title}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                      {product.shortDescription || product.description?.replace(/<[^>]*>/g, '').slice(0, 100)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 pt-0 border-t border-gray-100 flex items-center justify-between mt-4">
+                  <div>
+                    {product.discountPrice && product.discountPrice > 0 && (
+                      <span className="text-[11px] text-gray-400 line-through block">
+                        Rp {Number(product.discountPrice).toLocaleString('id-ID')}
+                      </span>
+                    )}
+                    <span className="text-lg font-black text-blue-600">
+                      Rp {Number(product.price).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <Link
+                    href={`/checkout?product=${product.id}`}
+                    className="btn-primary text-xs px-4 py-2 rounded-xl shadow-xs font-bold"
+                  >
+                    Beli Sekarang
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============================================
+  // ADMIN DASHBOARD PRODUCT MANAGEMENT VIEW
+  // ============================================
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -248,259 +373,312 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative w-full max-w-xs">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Cari produk..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:bg-white"
-          />
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <button
+            onClick={() => setSelectedCat('All')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              selectedCat === 'All'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Semua ({products.length})
+          </button>
+          {CATEGORIES_DATA.slice(0, 5).map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCat(cat.name)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                selectedCat === cat.name
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {cat.name}
+            </button>
+          ))}
         </div>
 
-        {/* Group and Sorting selectors */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-          <div>
-            <select
-              value={selectedCat}
-              onChange={(e) => setSelectedCat(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-800 font-bold"
-            >
-              <option value="All">Semua Kategori</option>
-              {CATEGORIES_DATA.map((cat) => (
-                <option key={cat.id} value={cat.name}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:outline-none"
+          >
+            <option value="position">Urutan Manual (Default)</option>
+            <option value="price-asc">Harga Terendah</option>
+            <option value="price-desc">Harga Tertinggi</option>
+            <option value="sales">Terjual Perbanyak</option>
+          </select>
 
-          <div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl bg-gray-50 border border-gray-200 text-gray-800 font-bold"
-            >
-              <option value="position">Urutan Posisi (Default)</option>
-              <option value="price-asc">Harga: Murah ke Mahal</option>
-              <option value="price-desc">Harga: Mahal ke Murah</option>
-              <option value="sales">Terlaris</option>
-            </select>
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Cari nama produk..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+            />
           </div>
-
-          <span className="text-xs font-semibold text-gray-500">Total: {filteredProducts.length} Produk</span>
         </div>
       </div>
 
+      {/* Table Products */}
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
         </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center text-gray-500 text-xs">
+          Belum ada produk digital yang ditambahkan. Klik "Upload Produk Baru" di atas untuk menambahkan.
+        </div>
       ) : (
-        /* Table */
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-gray-600 min-w-[650px]">
-            <thead className="bg-slate-50 text-gray-900 font-bold border-b border-gray-200">
-              <tr>
-                <th className="p-4">Produk</th>
-                <th className="p-4">Kategori</th>
-                <th className="p-4">Harga</th>
-                <th className="p-4">Versi</th>
-                <th className="p-4">Penjualan</th>
-                <th className="p-4 text-center">Urutan</th>
-                <th className="p-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredProducts.length === 0 ? (
+            <table className="w-full text-left text-xs">
+              <thead className="bg-gray-50 text-gray-500 uppercase font-semibold border-b border-gray-200">
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-gray-400">Belum ada produk digital terdaftar.</td>
+                  <th className="p-4 w-12 text-center">Urutan</th>
+                  <th className="p-4">Produk</th>
+                  <th className="p-4">Kategori</th>
+                  <th className="p-4">Harga & Diskon</th>
+                  <th className="p-4">Terjual</th>
+                  <th className="p-4">Link File Download</th>
+                  <th className="p-4 text-right">Aksi</th>
                 </tr>
-              ) : (
-                filteredProducts.map((prod, index) => (
-                  <tr key={prod.id} className="hover:bg-gray-50">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img src={prod.thumbnail} alt={prod.title} className="w-10 h-10 rounded-lg object-cover" />
-                        <div>
-                          <h4 className="font-bold text-gray-900 line-clamp-1">{prod.title}</h4>
-                          <span className="text-[11px] text-gray-400">/produk/{prod.slug}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4"><span className="badge-primary">{prod.category}</span></td>
-                    <td className="p-4 font-bold text-gray-900">
-                      Rp {Number(prod.price).toLocaleString('id-ID')}
-                      {prod.discountPrice > 0 && (
-                        <span className="text-[10px] line-through text-gray-400 ml-1.5">
-                          Rp {Number(prod.discountPrice).toLocaleString('id-ID')}
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4 font-semibold text-gray-600">{prod.version || 'v1.0.0'}</td>
-                    <td className="p-4 font-semibold text-emerald-600">{prod.salesCount || 0} Terjual</td>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-700">
+                {filteredProducts.map((prod, index) => (
+                  <tr key={prod.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex flex-col items-center gap-1">
                         <button
+                          disabled={index === 0}
                           onClick={() => handleMoveUp(index)}
-                          disabled={index === 0 || sortBy !== 'position'}
-                          className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:hover:bg-gray-100"
-                          title="Pindahkan Ke Atas"
+                          className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-20"
+                          title="Naikkan Urutan"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
+                        <span className="font-bold text-[11px] text-gray-600">{index + 1}</span>
                         <button
+                          disabled={index === filteredProducts.length - 1}
                           onClick={() => handleMoveDown(index)}
-                          disabled={index === filteredProducts.length - 1 || sortBy !== 'position'}
-                          className="p-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:hover:bg-gray-100"
-                          title="Pindahkan Ke Bawah"
+                          className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-20"
+                          title="Turunkan Urutan"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
-                    <td className="p-4 text-right space-x-1.5">
-                      <button onClick={() => handleOpenEdit(prod)} className="p-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200" title="Sunting Produk">
-                        <Edit2 className="w-3.5 h-3.5" />
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={prod.thumbnail || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80'}
+                          alt={prod.title}
+                          className="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm line-clamp-1">{prod.title}</h4>
+                          <span className="text-[10px] text-gray-400">Versi {prod.version || 'v1.0.0'}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="badge-primary text-[10px]">{prod.category}</span>
+                    </td>
+                    <td className="p-4">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-gray-900">
+                          Rp {Number(prod.price || 0).toLocaleString('id-ID')}
+                        </span>
+                        {prod.discountPrice > 0 && (
+                          <span className="text-[10px] text-gray-400 line-through block">
+                            Rp {Number(prod.discountPrice).toLocaleString('id-ID')}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 font-semibold text-gray-600">
+                      {prod.salesCount || 0} pcs
+                    </td>
+                    <td className="p-4">
+                      {prod.downloadUrl ? (
+                        <span className="text-[11px] text-emerald-600 font-bold max-w-[150px] truncate block" title={prod.downloadUrl}>
+                          ✓ Terpasang ({prod.downloadUrl.slice(0, 20)}...)
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-amber-500 font-medium">⚠️ Belum Diisi</span>
+                      )}
+                    </td>
+                    <td className="p-4 text-right space-x-2">
+                      <button
+                        onClick={() => handleOpenEdit(prod)}
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit Produk"
+                      >
+                        <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(prod.id)} className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100" title="Hapus Produk">
-                        <Trash2 className="w-3.5 h-3.5" />
+                      <button
+                        onClick={() => handleDelete(prod.id)}
+                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Hapus Produk"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       )}
 
-      {/* Modal Form Upload & Edit */}
+      {/* MODAL FORM ADD / EDIT PRODUCT */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-3xl w-full p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-200 shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {editingId ? 'Form Sunting Produk Digital' : 'Form Upload Produk Digital'}
-                </h2>
-                <p className="text-xs text-gray-500">Isi detail lengkap produk digital yang ingin dijual.</p>
-              </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+              <h3 className="font-extrabold text-gray-900 text-lg">
+                {editingId ? 'Edit Produk Digital' : 'Upload Produk Digital Baru'}
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm font-bold"
+              >
+                ✕
+              </button>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-4 text-xs">
+            <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Judul Produk *</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Judul Produk *</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Contoh: NewsFast — Template Blogger Portal Berita"
                   required
-                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                  placeholder="Misal: NewsFast — Premium Blogger Template"
+                  className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Kategori Produk *</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Kategori Produk *</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 font-medium"
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   >
                     {CATEGORIES_DATA.map((cat) => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
                     ))}
                   </select>
                 </div>
+
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Versi Produk</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Versi Produk</label>
                   <input
                     type="text"
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
                     placeholder="v1.0.0"
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Harga Jual (Rp) *</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Harga Jual (Rp) *</label>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     required
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   />
                 </div>
+
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Harga Normal / Coret (Rp)</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Harga Coret / Asli (Rp)</label>
                   <input
                     type="number"
                     value={discountPrice}
                     onChange={(e) => setDiscountPrice(Number(e.target.value))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Upload Gambar Thumbnail Produk</label>
+                <ImageUpload
+                  value={thumbnail}
+                  onChange={(url) => setThumbnail(url)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">URL Live Demo (Opsional)</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Link Live Demo Preview</label>
                   <input
-                    type="text"
+                    type="url"
                     value={demoUrl}
                     onChange={(e) => setDemoUrl(e.target.value)}
-                    placeholder="https://demo.example.com"
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                    placeholder="https://demo.dunia-digitalia.com"
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   />
                 </div>
+
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">URL Download File (.ZIP/.PDF) *</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Link Download File (Google Drive / Zip) *</label>
                   <input
-                    type="text"
+                    type="url"
                     value={downloadUrl}
                     onChange={(e) => setDownloadUrl(e.target.value)}
-                    placeholder="https://storage.googleapis.com/.../file.zip"
-                    required
-                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                    placeholder="https://drive.google.com/file/d/..."
+                    className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Gambar Thumbnail Produk</label>
-                <ImageUpload value={thumbnail} onChange={setThumbnail} folder="products" />
-              </div>
-
-              <div>
-                <label className="block font-bold text-gray-700 mb-1">Daftar Fitur (Satu per baris)</label>
-                <textarea
-                  rows={3}
-                  value={features}
-                  onChange={(e) => setFeatures(e.target.value)}
-                  placeholder="Kecepatan 98+ PageSpeed&#10;SEO Schema JSON-LD&#10;Dark Mode Toggle"
-                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900"
+                <label className="block text-xs font-bold text-gray-700 mb-1">Deskripsi Produk *</label>
+                <RichEditor
+                  content={description}
+                  onChange={(html) => setDescription(html)}
+                  placeholder="Tuliskan deskripsi lengkap produk..."
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Deskripsi Lengkap Produk</label>
-                <RichEditor content={description} onChange={setDescription} />
+                <label className="block text-xs font-bold text-gray-700 mb-1">Fitur Utama (Pisahkan dengan baris baru)</label>
+                <textarea
+                  rows={4}
+                  value={features}
+                  onChange={(e) => setFeatures(e.target.value)}
+                  placeholder="Responsive Layout&#10;SEO Schema Integrated&#10;Google AdSense Ready"
+                  className="w-full px-4 py-2.5 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Batal</button>
-                <button type="submit" className="btn-primary px-6">
-                  {editingId ? 'Simpan Perubahan' : 'Unggah Produk'}
+              <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="btn-secondary text-xs px-4 py-2"
+                >
+                  Batal
+                </button>
+                <button type="submit" className="btn-primary text-xs px-6 py-2">
+                  {editingId ? 'Simpan Perubahan' : 'Upload Produk'}
                 </button>
               </div>
             </form>

@@ -43,9 +43,11 @@ const ADMIN_MENU = [
 
 const CUSTOMER_MENU = [
   { label: 'Dashboard Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Kembali ke Beranda', href: '/', icon: Home },
-  { label: 'Beli Produk', href: '/produk', icon: ShoppingBag },
-  { label: 'Jasa Web', href: '/jasa', icon: Layers },
+  { label: 'Katalog Produk Digital', href: '/dashboard/products', icon: ShoppingBag },
+  { label: 'Jasa Pembuatan Web', href: '/dashboard/services', icon: Layers },
+  { label: 'Pesanan & Riwayat Saya', href: '/dashboard/orders', icon: CreditCard },
+  { label: 'Kupon & Diskon Promo', href: '/dashboard/coupons', icon: Tag },
+  { label: 'Lihat Situs Utama', href: '/', icon: Home },
 ];
 
 interface AdminSidebarProps {

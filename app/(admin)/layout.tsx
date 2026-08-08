@@ -33,8 +33,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     // Role-based access control
-    if (user.role === 'Customer' && pathname !== '/dashboard') {
-      toast.error('Akses ditolak: Anda hanya dapat mengakses halaman utama dashboard klien.');
+    const customerAllowedRoutes = [
+      '/dashboard',
+      '/dashboard/products',
+      '/dashboard/services',
+      '/dashboard/orders',
+      '/dashboard/coupons',
+      '/dashboard/settings',
+    ];
+
+    if (user.role === 'Customer' && !customerAllowedRoutes.includes(pathname)) {
+      toast.error('Akses ditolak: Halaman ini hanya untuk Admin.');
       router.replace('/dashboard');
     } else if (user.role === 'Admin') {
       if (pathname === '/dashboard/users' || pathname === '/dashboard/settings') {
