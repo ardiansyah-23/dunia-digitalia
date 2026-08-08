@@ -139,8 +139,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 {/* Main Preview Image */}
                 <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden p-3">
                   <img
-                    src={product.thumbnail}
+                    src={product.thumbnail || 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80'}
                     alt={product.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80';
+                    }}
                     className="w-full h-auto max-h-[460px] object-cover rounded-2xl"
                   />
                 </div>

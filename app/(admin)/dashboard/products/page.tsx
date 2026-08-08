@@ -425,8 +425,11 @@ export default function AdminProductsPage() {
                 <div>
                   <div className="h-44 relative bg-gray-100 overflow-hidden">
                     <img
-                      src={product.thumbnail}
+                      src={product.thumbnail || 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80'}
                       alt={product.title}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-white/90 text-gray-900 backdrop-blur-xs shadow-2xs">

@@ -41,9 +41,9 @@ export const PRODUCTS_DATA: Product[] = [
     version: 'v1.2.0',
     demoUrl: 'https://tokodigital.duniadigitalia.com',
     downloadUrl: 'https://duniadigitalia.com/downloads/tokodigital-v1.2.0.zip',
-    thumbnail: 'https://images.unsplash.com/photo-1556742049-0a675659e382?auto=format&fit=crop&w=800&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80',
     screenshots: [
-      'https://images.unsplash.com/photo-1556742049-0a675659e382?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80',
     ],
     features: ['Next.js 15 App Router & React 19', 'Pembayaran Otomatis Tripay QRIS/VA', 'Firestore Database & Auth', 'Generasi Invoice PDF', 'Admin Panel Produk & Transaksi'],
     salesCount: 189,
