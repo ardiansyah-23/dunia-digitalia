@@ -7,6 +7,15 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { Loader2, Menu, X, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const CUSTOMER_ALLOWED_ROUTES = [
+  '/dashboard',
+  '/dashboard/products',
+  '/dashboard/services',
+  '/dashboard/orders',
+  '/dashboard/coupons',
+  '/dashboard/settings',
+];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
@@ -33,16 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     // Role-based access control
-    const customerAllowedRoutes = [
-      '/dashboard',
-      '/dashboard/products',
-      '/dashboard/services',
-      '/dashboard/orders',
-      '/dashboard/coupons',
-      '/dashboard/settings',
-    ];
-
-    if (user.role === 'Customer' && !customerAllowedRoutes.includes(pathname)) {
+    if (user.role === 'Customer' && !CUSTOMER_ALLOWED_ROUTES.includes(pathname)) {
       toast.error('Akses ditolak: Halaman ini hanya untuk Admin.');
       router.replace('/dashboard');
     } else if (user.role === 'Admin') {
@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!user) return null;
 
   // Block protected pages from wrong role (prevents flash)
-  if (user.role === 'Customer' && pathname !== '/dashboard') return null;
+  if (user.role === 'Customer' && !CUSTOMER_ALLOWED_ROUTES.includes(pathname)) return null;
   if (user.role === 'Admin' && (pathname === '/dashboard/users' || pathname === '/dashboard/settings')) return null;
 
   return (
