@@ -110,12 +110,16 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Payment Methods */}
+          {/* Column 4: Perusahaan & Pembayaran */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Pembayaran Otomatis</h4>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Diproses 24/7 melalui Tripay Payment Gateway resmi:
-            </p>
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Informasi & Bantuan</h4>
+            <ul className="space-y-2 text-xs mb-4">
+              <li><Link href="/about" className="hover:text-white transition-colors">Tentang Kami</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">Hubungi Kami</Link></li>
+              <li><Link href="/promo" className="hover:text-white transition-colors text-amber-400 font-semibold">Kupon & Promo Spesial 🔥</Link></li>
+            </ul>
+
+            <h4 className="text-xs font-bold text-white uppercase tracking-widest pt-2">Pembayaran Otomatis</h4>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {paymentBadges.map((badge) => (
                 <span key={badge} className="px-2.5 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold text-slate-300">
@@ -131,6 +135,8 @@ export default function Footer() {
         <div className="pt-8 mt-12 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Dunia Digitalia. Hak Cipta Dilindungi Undang-Undang.</p>
           <div className="flex flex-wrap gap-6 text-xs font-medium">
+            <Link href="/about" className="hover:text-slate-300 transition-colors">Tentang Kami</Link>
+            <Link href="/contact" className="hover:text-slate-300 transition-colors">Hubungi Kami</Link>
             <Link href="/kebijakan-privasi" className="hover:text-slate-300 transition-colors">Kebijakan Privasi</Link>
             <Link href="/syarat-ketentuan" className="hover:text-slate-300 transition-colors">Syarat & Ketentuan</Link>
             <Link href="/kebijakan-pengembalian" className="hover:text-slate-300 transition-colors">Kebijakan Pengembalian</Link>

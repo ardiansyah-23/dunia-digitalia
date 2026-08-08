@@ -4,9 +4,6 @@ export const NAV_LINKS = [
   { label: 'Jasa Web', href: '/jasa' },
   { label: 'Portfolio', href: '/portfolio' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Promo', href: '/promo' },
-  { label: 'Tentang', href: '/about' },
-  { label: 'Kontak', href: '/contact' },
 ];
 
 export const COMPANY_INFO = {
