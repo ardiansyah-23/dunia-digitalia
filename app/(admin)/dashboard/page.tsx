@@ -133,7 +133,7 @@ export default function DashboardPage() {
     return (
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Welcome Header */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-1">
               Portal Pelanggan Dunia Digitalia
@@ -142,9 +142,6 @@ export default function DashboardPage() {
               Selamat datang kembali, <strong className="text-blue-600 font-bold">{user.displayName || 'Pelanggan'}</strong>. Kelola pembelian produk digital Anda di sini.
             </p>
           </div>
-          <Link href="/" className="btn-primary text-xs px-5 py-2.5">
-            Lanjut Belanja →
-          </Link>
         </div>
 
         {/* Client stats summary */}
