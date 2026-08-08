@@ -40,6 +40,7 @@ export default function AdminServicesPage() {
   const [title, setTitle] = useState('');
   const [startingPrice, setStartingPrice] = useState(1500000);
   const [description, setDescription] = useState('');
+  const [longDescription, setLongDescription] = useState('');
   const [features, setFeatures] = useState('');
   const [estimatedDays, setEstimatedDays] = useState('3 - 5 Hari');
 
@@ -72,6 +73,7 @@ export default function AdminServicesPage() {
     setTitle('');
     setStartingPrice(1500000);
     setDescription('');
+    setLongDescription('');
     setFeatures('');
     setEstimatedDays('3 - 5 Hari');
     setIsModalOpen(true);
@@ -81,7 +83,8 @@ export default function AdminServicesPage() {
     setEditingId(s.id);
     setTitle(s.title);
     setStartingPrice(s.startingPrice);
-    setDescription(s.description);
+    setDescription(s.description || '');
+    setLongDescription(s.longDescription || s.description || '');
     setFeatures(
       Array.isArray(s.features)
         ? s.features.join('\n')
@@ -107,6 +110,7 @@ export default function AdminServicesPage() {
       title,
       startingPrice: Number(startingPrice),
       description,
+      longDescription: longDescription || description,
       features: featureList,
       estimatedDays,
       active: true,
@@ -140,9 +144,7 @@ export default function AdminServicesPage() {
   // CUSTOMER DASHBOARD SERVICES CATALOG VIEW
   // ============================================
   if (isCustomer) {
-    const fullService = selectedService
-      ? AGENCY_SERVICES.find(s => s.slug === selectedService.slug || s.title === selectedService.title) || selectedService
-      : null;
+    const fullService = selectedService;
 
     const whatsappUrl = fullService
       ? `https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
@@ -417,12 +419,23 @@ export default function AdminServicesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Deskripsi Ringkas</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Deskripsi Ringkas (Kartu)</label>
                 <textarea
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Penjelasan singkat mengenai paket jasa ini..."
+                  className="w-full px-4 py-2 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Deskripsi Lengkap & Gambaran Detail Layanan</label>
+                <textarea
+                  rows={4}
+                  value={longDescription}
+                  onChange={(e) => setLongDescription(e.target.value)}
+                  placeholder="Penjelasan detail mengenai cakupan layanan, keunggulan, dan alur pengerjaan..."
                   className="w-full px-4 py-2 text-xs border border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
                 />
               </div>
