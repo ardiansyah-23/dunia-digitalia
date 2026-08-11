@@ -38,7 +38,14 @@ export default function Footer() {
             <div className="space-y-3 text-xs text-slate-400">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                <span>{COMPANY_INFO.address}</span>
+                <a
+                  href="https://share.google/EY8RKzDIwhdXuZ0NH"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  {COMPANY_INFO.address}
+                </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-blue-500 shrink-0" />
