@@ -225,27 +225,6 @@ export default function MarketplaceHomePage() {
                     </Link>
                   </div>
 
-                  {/* Trust Indicators Bar */}
-                  <div className="pt-8 border-t border-slate-100 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-600 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Instan Download 24/7</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                      <span>100% Bebas Malware</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Bayar QRIS / VA Otomatis</span>
-                    </div>
-                  </div>
 
                 </div>
 
