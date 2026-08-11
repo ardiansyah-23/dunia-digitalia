@@ -42,9 +42,9 @@ export default function CheckoutPage() {
       const params = new URLSearchParams(window.location.search);
       const prodId = params.get('product');
       if (prodId) {
-        router.push('/login?tab=login');
+        router.replace('/login?tab=login');
       } else {
-        router.push('/login');
+        router.replace('/login');
       }
       return;
     }
