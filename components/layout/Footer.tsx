@@ -9,40 +9,6 @@ const paymentBadges = [
 export default function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-400 border-t border-slate-800/80">
-      {/* Top Banner / Trust Bar */}
-      <div className="border-b border-slate-800/60 bg-slate-900/40 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">100% Garansi Bebas Malware</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Seluruh kode & template telah diuji secara ketat</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">Instan Download 24/7</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Akses berkas langsung dikirim setelah verifikasi Tripay</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">Dukungan Garansi & Support</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Tim developer siap mendampingi proses instalasi</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
