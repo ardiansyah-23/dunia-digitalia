@@ -341,12 +341,12 @@ export default function MarketplaceHomePage() {
               </div>
 
               {/* Product Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-3 gap-2 sm:gap-6 md:gap-8">
                 {products.slice(0, 6).map((product) => (
                   <div key={product.id} className="card-product overflow-hidden flex flex-col justify-between group">
                     <div>
                       {/* Product Thumbnail Banner */}
-                      <div className="h-52 relative overflow-hidden bg-slate-100">
+                      <div className="h-16 xs:h-24 sm:h-40 md:h-52 relative overflow-hidden bg-slate-100">
                         <img
                           src={product.thumbnail || 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80'}
                           alt={product.title}
@@ -356,48 +356,48 @@ export default function MarketplaceHomePage() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-lg text-[10px] font-bold bg-white/90 text-slate-900 backdrop-blur-md shadow-xs">
+                        <span className="absolute top-1 sm:top-3.5 left-1 sm:left-3.5 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded sm:rounded-lg text-[8px] sm:text-[10px] font-bold bg-white/90 text-slate-900 backdrop-blur-md shadow-xs">
                           {product.category}
                         </span>
                       </div>
 
                       {/* Product Content Details */}
-                      <div className="p-6 space-y-3">
-                        <div className="flex items-center gap-1.5 text-amber-500 text-xs font-bold">
-                          <Star className="w-4 h-4 fill-amber-400" />
+                      <div className="p-2 sm:p-6 space-y-1.5 sm:space-y-3">
+                        <div className="flex items-center gap-1 text-amber-500 text-[9px] sm:text-xs font-bold">
+                          <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-amber-400" />
                           <span>{product.rating}</span>
-                          <span className="text-slate-400 font-normal">({product.reviewCount} ulasan)</span>
+                          <span className="text-slate-400 font-normal hidden sm:inline">({product.reviewCount} ulasan)</span>
                         </div>
 
                         <Link href={`/produk/${product.slug}`} className="block">
-                          <h3 className="font-extrabold text-slate-900 text-lg leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                          <h3 className="font-extrabold text-slate-900 text-xs sm:text-base md:text-lg leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
                             {product.title}
                           </h3>
                         </Link>
 
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-slate-600 line-clamp-2 leading-relaxed">
                           {product.shortDescription}
                         </p>
                       </div>
                     </div>
 
                     {/* Card Pricing & Action Footer */}
-                    <div className="p-6 pt-0 border-t border-slate-100 flex items-center justify-between mt-4">
+                    <div className="p-2 sm:p-6 pt-0 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 mt-2 sm:mt-4">
                       <div>
                         {product.discountPrice && product.discountPrice > 0 && (
-                          <span className="text-xs text-slate-400 line-through block">
+                          <span className="text-[9px] sm:text-xs text-slate-400 line-through block">
                             Rp {product.discountPrice.toLocaleString('id-ID')}
                           </span>
                         )}
-                        <span className="text-xl font-black text-blue-600">
+                        <span className="text-xs sm:text-base md:text-xl font-black text-blue-600">
                           Rp {product.price.toLocaleString('id-ID')}
                         </span>
                       </div>
                       <Link
                         href={`/checkout?product=${product.id}`}
-                        className="btn-primary text-xs px-5 py-2.5 rounded-xl shadow-xs"
+                        className="btn-primary text-[9px] sm:text-xs px-2 py-1.5 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-xs text-center w-full sm:w-auto mt-1 sm:mt-0"
                       >
-                        Beli Sekarang
+                        Beli
                       </Link>
                     </div>
                   </div>
