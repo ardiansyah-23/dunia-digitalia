@@ -205,17 +205,17 @@ export default function MarketplaceHomePage() {
                   {/* Category Pill Tag */}
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold shadow-2xs">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
-                    <span>Marketplace Digital & Web Development Agency #1</span>
+                    <span>Marketplace Digital & Web Development Agency</span>
                   </div>
 
                   {/* Main Headline */}
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.12] tracking-tight text-balance">
-                    Bangun Website & Aplikasi Web <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Lebih Cepat & Professional.</span>
+                    Template & Source Code Siap Pakai. <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Website Kustom dalam 7 Hari.</span>
                   </h1>
 
                   {/* Description Paragraph */}
                   <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
-                    Pusat template Blogger premium, source code aplikasi web siap pakai, AI prompt, serta jasa pembuatan website kustom berkinerja tinggi untuk mengakselerasi pertumbuhan bisnis Anda.
+                    Template Blogger premium, source code Next.js siap deploy, AI prompt, dan jasa pembuatan website kustom untuk developer dan pemilik bisnis yang tidak mau buang waktu.
                   </p>
 
                   {/* Action Buttons */}
@@ -267,8 +267,8 @@ export default function MarketplaceHomePage() {
                         <div className="w-3 h-3 rounded-full bg-emerald-500" />
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                        <span>Produk Terbaru Dibeli (Live)</span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span>Transaksi Masuk (Live)</span>
                       </div>
                     </div>
 
@@ -321,12 +321,23 @@ export default function MarketplaceHomePage() {
           <section className="bg-slate-100/70 border-b border-slate-200/80 py-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Dipercayai oleh 5.000+ Developer, Blogger, & Pelaku Usaha di Seluruh Indonesia
+                Dipercayai 5.000+ developer, blogger, dan pemilik bisnis di Indonesia
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-75 grayscale hover:grayscale-0 transition-all">
-                {['TechCorp ID', 'MediaNusa Digital', 'SolusiData Web', 'TokoModern App', 'StudioWeb Kreatif', 'EduTekno'].map((brand) => (
-                  <span key={brand} className="text-sm sm:text-base font-black text-slate-700 tracking-tight">
-                    {brand}
+              <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60 hover:opacity-90 transition-all">
+                {[
+                  { name: 'TechCorp ID', color: '#1E40AF' },
+                  { name: 'MediaNusa', color: '#0F766E' },
+                  { name: 'SolusiData', color: '#7C3AED' },
+                  { name: 'TokoModern', color: '#B45309' },
+                  { name: 'StudioWeb', color: '#BE123C' },
+                  { name: 'EduTekno', color: '#166534' },
+                ].map((brand) => (
+                  <span
+                    key={brand.name}
+                    className="text-sm sm:text-base font-black tracking-tight"
+                    style={{ color: brand.color }}
+                  >
+                    {brand.name}
                   </span>
                 ))}
               </div>
@@ -341,12 +352,11 @@ export default function MarketplaceHomePage() {
               
               {/* Section Header */}
               <div className="text-center max-w-2xl mx-auto space-y-3">
-                <span className="badge-primary">Kategori Produk</span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                  Jelajahi Produk Berdasarkan Kategori
+                  Cari Berdasarkan Kategori
                 </h2>
                 <p className="text-slate-600 text-sm leading-relaxed">
-                  Temukan berbagai kategori template, source code, dan aset digital yang dirancang untuk mempercepat alur kerja Anda.
+                  Developer memakai template, source code, dan aset digital ini untuk mempercepat waktu pengembangan dari hitungan minggu ke hari.
                 </p>
               </div>
 
@@ -390,12 +400,11 @@ export default function MarketplaceHomePage() {
               {/* Header with View All Button */}
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/60 pb-6">
                 <div className="space-y-2">
-                  <span className="badge-primary">Pilihan Terpopuler</span>
                   <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                     Produk Digital Unggulan
                   </h2>
                   <p className="text-slate-600 text-sm">
-                    Template & source code siap pakai yang paling banyak digunakan oleh developer.
+                    Template dan source code yang paling banyak dibeli developer Indonesia.
                   </p>
                 </div>
                 <Link href="/produk" className="btn-secondary text-xs px-5 py-3 rounded-xl flex items-center gap-1.5 shrink-0">
@@ -478,12 +487,11 @@ export default function MarketplaceHomePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
               
               <div className="text-center max-w-2xl mx-auto space-y-3">
-                <span className="badge-primary">Web Development Agency</span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                  Jasa Pembuatan Website Kustom & Profesional
+                  Jasa Pembuatan Website Kustom
                 </h2>
                 <p className="text-slate-600 text-sm leading-relaxed">
-                  Tim pengembang berpengalaman kami siap membangun platform digital dengan standar performa dan arsitektur kelas atas.
+                  Tim kami membangun platform digital dengan standar performa tinggi dan arsitektur yang mudah dikembangkan jangka panjang.
                 </p>
               </div>
 
@@ -533,13 +541,12 @@ export default function MarketplaceHomePage() {
           <section className="py-24 bg-slate-50 border-b border-slate-200/80">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 text-center">
               
-              <div className="space-y-3 max-w-2xl mx-auto">
-                <span className="badge-primary">Keunggulan Layanan</span>
+              <div className="space-y-3 max-w-2xl mx-auto text-center">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                   Mengapa Memilih Dunia Digitalia?
                 </h2>
                 <p className="text-slate-600 text-sm">
-                  Komitmen kami dalam memberikan standar kode, kualitas desain, dan kenyamanan terbaik bagi setiap klien.
+                  Kami membangun standar kode, kualitas desain, dan dukungan teknis yang konsisten untuk setiap klien.
                 </p>
               </div>
 
@@ -561,7 +568,7 @@ export default function MarketplaceHomePage() {
                   </div>
                   <h3 className="font-extrabold text-slate-900 text-lg">Kode Bebas Backdoor</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Seluruh berkas source code dan template Blogger diuji secara intensif untuk menjamin 100% keamanan dari backdoor atau script berbahaya.
+                    Kami menguji seluruh source code dan template Blogger untuk memastikan tidak ada backdoor atau script berbahaya sebelum rilis.
                   </p>
                 </div>
 
@@ -571,7 +578,7 @@ export default function MarketplaceHomePage() {
                   </div>
                   <h3 className="font-extrabold text-slate-900 text-lg">Garansi & Bantuan Technical</h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Tim pengembang kami selalu siap membantu memberikan petunjuk teknis jika Anda mengalami kendala pada proses instalasi.
+                    Tim kami membantu proses instalasi jika ada kendala teknis, tanpa biaya tambahan selama periode garansi.
                   </p>
                 </div>
 
@@ -587,13 +594,9 @@ export default function MarketplaceHomePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
               
               <div className="text-center max-w-2xl mx-auto space-y-3">
-                <span className="badge-primary">Ulasan Pengguna</span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                  Apa Kata Pelanggan & Klien Kami?
+                  Kata Pelanggan & Klien
                 </h2>
-                <p className="text-slate-600 text-sm">
-                  Dengarkan pengalaman langsung dari para pembeli dan pemilik bisnis yang telah mempercayakan proyeknya pada kami.
-                </p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
@@ -612,11 +615,11 @@ export default function MarketplaceHomePage() {
 
                     <div className="pt-4 border-t border-slate-200/60 flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
-                        {t.name.split(' ').map((n: string) => n[0]).join('')}
+                        {t.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                       </div>
                       <div>
                         <h4 className="font-extrabold text-slate-900 text-xs">{t.name}</h4>
-                        <span className="text-[11px] text-slate-500 font-medium">{t.role} • {t.company || 'Pelanggan'}</span>
+                        <span className="text-[11px] text-slate-500 font-medium">{t.role}, {t.company || 'Pelanggan'}</span>
                       </div>
                     </div>
                   </div>
@@ -634,12 +637,11 @@ export default function MarketplaceHomePage() {
               
               {/* FAQ Header */}
               <div className="text-center space-y-3">
-                <span className="badge-primary">FAQ</span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                   Pertanyaan yang Sering Diajukan
                 </h2>
                 <p className="text-slate-600 text-sm">
-                  Temukan jawaban cepat mengenai proses pembelian, lisensi, dan layanan kami.
+                  Jawaban cepat mengenai proses pembelian, lisensi, dan layanan kami.
                 </p>
               </div>
 
@@ -672,11 +674,11 @@ export default function MarketplaceHomePage() {
                 </div>
 
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  Dapatkan Promo Exklusif & Update Template Terbaru
+                  Promo Eksklusif & Template Terbaru Langsung ke Inbox Anda
                 </h3>
 
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-                  Berlangganan newsletter kami untuk menerima voucher diskon khusus dan rilisan produk digital terbaru secara langsung.
+                  Berlangganan newsletter kami untuk menerima voucher diskon dan produk digital terbaru lebih awal dari publik.
                 </p>
 
                 {newsletterSuccess ? (

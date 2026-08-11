@@ -12,8 +12,8 @@ const STATIC_TESTIMONIALS: Testimonial[] = [
     name: 'Budi Santoso',
     role: 'CEO & Founder',
     company: 'TechVision Indonesia',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    content: 'Dunia Digitalia membantu mengotomasi 80% proses operasional kami dengan AI dan RPA. Hasilnya luar biasa, tim kami bisa fokus pada keputusan strategis!',
+    avatar: '',
+    content: 'Dunia Digitalia membantu mengotomasi 80% proses operasional kami dengan AI dan RPA. Tim kami kini fokus pada keputusan strategis, bukan kerja manual.',
     rating: 5,
     featured: true,
     createdAt: '2026-01-10',
@@ -23,8 +23,8 @@ const STATIC_TESTIMONIALS: Testimonial[] = [
     name: 'Siti Rahmawati',
     role: 'Head of Product',
     company: 'Nexa Digital Store',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-    content: 'Redesain platform e-commerce kami oleh tim Dunia Digitalia meningkatkan conversion rate sebesar 45%. UI/UX yang dihasilkan benar-benar world-class.',
+    avatar: '',
+    content: 'Tim Dunia Digitalia medesain ulang platform e-commerce kami. Conversion rate naik 45% dalam dua bulan setelah peluncuran.',
     rating: 5,
     featured: true,
     createdAt: '2026-01-05',
@@ -34,8 +34,8 @@ const STATIC_TESTIMONIALS: Testimonial[] = [
     name: 'Rian Hidayat',
     role: 'CTO',
     company: 'Fintech Utama',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-    content: 'Arsitektur cloud dan integrasi Next.js 15 dari Dunia Digitalia sangat stabil, mampu menangani traffic tinggi tanpa kendala sama sekali.',
+    avatar: '',
+    content: 'Arsitektur Next.js 15 dan cloud yang dibangun tim ini sangat stabil di bawah traffic tinggi. Tidak ada kendala sejak hari pertama go-live.',
     rating: 5,
     featured: true,
     createdAt: '2025-12-20',
@@ -108,15 +108,13 @@ export default function TestimonialsSection() {
               </p>
 
               <div className="flex items-center gap-4">
-                <img
-                  src={current.avatar}
-                  alt={current.name}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-[#1E88FF]"
-                />
+                <div className="w-14 h-14 rounded-full bg-[#1E88FF]/20 border border-[#1E88FF]/40 flex items-center justify-center font-black text-[#5EC8FF] text-base shrink-0">
+                  {current.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                </div>
                 <div>
                   <h4 className="text-white font-bold text-base">{current.name}</h4>
                   <p className="text-[#A8B3C7] text-sm">
-                    {current.role} at <span className="text-[#5EC8FF]">{current.company}</span>
+                    {current.role}, <span className="text-[#5EC8FF]">{current.company}</span>
                   </p>
                 </div>
               </div>

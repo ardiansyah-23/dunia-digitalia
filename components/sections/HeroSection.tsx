@@ -64,11 +64,11 @@ export default function HeroSection() {
 
             <FadeUp delay={0.3}>
               <p className="text-[#A8B3C7] text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Pelajari dan bangun teknologi terdepan —{' '}
-                <strong className="text-white font-semibold">Kecerdasan Buatan</strong>,{' '}
-                <strong className="text-white font-semibold">Pengembangan Web</strong>,{' '}
-                <strong className="text-white font-semibold">Otomasi Process</strong>, dan{' '}
-                <strong className="text-white font-semibold">Arsitektur Cloud</strong> dalam satu platform terpadu.
+                Platform edukasi dan agensi teknologi untuk tim yang ingin membangun{' '}
+                <strong className="text-white font-semibold">AI siap produksi</strong>,{' '}
+                <strong className="text-white font-semibold">aplikasi web modern</strong>,{' '}
+                <strong className="text-white font-semibold">otomasi bisnis</strong>, dan{' '}
+                <strong className="text-white font-semibold">infrastruktur cloud</strong>.
               </p>
             </FadeUp>
 
