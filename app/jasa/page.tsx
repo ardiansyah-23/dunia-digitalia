@@ -34,7 +34,7 @@ export default function ServicesPage() {
             
             {/* Header */}
             <div className="text-center max-w-2xl mx-auto space-y-3">
-              <span className="badge-primary">Web Development Agency</span>
+
               <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
                 Jasa Pembuatan Website Profesional
               </h1>
@@ -102,7 +102,7 @@ export default function ServicesPage() {
             {/* Process Timeline */}
             <div className="p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-10">
               <div className="text-center max-w-xl mx-auto space-y-2">
-                <span className="badge-primary">Tahapan Kerja</span>
+
                 <h2 className="text-2xl font-extrabold text-slate-900">4 Langkah Mudah Membuat Website</h2>
               </div>
 

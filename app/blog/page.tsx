@@ -109,7 +109,7 @@ export default function BlogPage() {
             
             {/* Header */}
             <div className="text-center max-w-2xl mx-auto space-y-4">
-              <span className="badge-primary">Media & Publication</span>
+
               <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
                 Wawasan & Tutorial Teknologi
               </h1>

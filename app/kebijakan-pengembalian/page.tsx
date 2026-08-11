@@ -21,7 +21,7 @@ export default function RefundPolicyPage() {
             
             {/* Header */}
             <div className="text-center space-y-3">
-              <span className="badge-primary">Garansi & Refund</span>
+
               <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                 Kebijakan Pengembalian (Refund)
               </h1>

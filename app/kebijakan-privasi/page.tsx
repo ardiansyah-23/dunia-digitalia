@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
             
             {/* Header */}
             <div className="text-center space-y-3">
-              <span className="badge-primary">Legal & Privasi</span>
+
               <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                 Kebijakan Privasi
               </h1>

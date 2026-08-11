@@ -21,7 +21,7 @@ export default function AboutPage() {
             
             {/* Header */}
             <div className="text-center max-w-3xl mx-auto space-y-4">
-              <span className="badge-primary">Profil Perusahaan</span>
+
               <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                 Membangun Ekosistem Digital <span className="text-blue-600">Indonesia</span>
               </h1>
@@ -67,7 +67,7 @@ export default function AboutPage() {
             {/* Office Location & Interactive Map */}
             <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-xs grid lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-6 space-y-5">
-                <span className="badge-primary">Headquarters</span>
+
                 <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
                   Pancoran, Jakarta Selatan
                 </h2>

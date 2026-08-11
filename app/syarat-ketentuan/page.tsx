@@ -21,7 +21,7 @@ export default function TermsAndConditionsPage() {
             
             {/* Header */}
             <div className="text-center space-y-3">
-              <span className="badge-primary">Lisensi & Ketentuan</span>
+
               <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                 Syarat & Ketentuan
               </h1>

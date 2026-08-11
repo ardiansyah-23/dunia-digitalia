@@ -80,7 +80,7 @@ export default function PortfolioPage() {
             
             {/* Header */}
             <div className="text-center max-w-2xl mx-auto space-y-3">
-              <span className="badge-primary">Portfolio Showcase</span>
+
               <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
                 Hasil Karya & Studi Kasus Klien
               </h1>

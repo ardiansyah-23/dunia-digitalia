@@ -167,7 +167,7 @@ export default function CheckoutPage() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div className="mb-8">
-              <span className="badge-primary mb-2">Order & Payment</span>
+
               <h1 className="text-3xl font-extrabold text-gray-900 mt-1">
                 Checkout Pembayaran
               </h1>
