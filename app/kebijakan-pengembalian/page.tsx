@@ -31,79 +31,80 @@ export default function RefundPolicyPage() {
             </div>
 
             {/* Content Card */}
-            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-8 text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-8 text-xs sm:text-sm text-slate-700 leading-relaxed">
               
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <RotateCcw className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>1. Sifat Produk Digital</h2>
-                </div>
-                <p>
-                  Seluruh barang yang dijual di <strong>Dunia Digitalia</strong> berupa <em>Digital Goods / Intangible Items</em> (Template Blogger, Source Code, Ebook, AI Prompt) yang dapat diunduh dan diakses secara instan setelah pembayaran berhasil. Karena bentuknya yang tidak berwujud, pada prinsipnya <strong>semua transaksi yang telah berhasil bersifat final.</strong>
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  1. Sifat Produk Digital
+                </h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Semua produk di <strong className="text-slate-900">Dunia Digitalia</strong> berupa berkas digital (Template Blogger, Source Code, Ebook, AI Prompt) yang langsung tersedia setelah pembayaran dikonfirmasi. Karena sifat berkas digital yang tidak dapat dikembalikan secara fisik, <strong className="text-slate-900">setiap transaksi yang telah berhasil bersifat final</strong>.
                 </p>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <h2>2. Garansi 100% Pengembalian Dana (Syarat Berlaku)</h2>
-                </div>
-                <p>Kami memberikan garansi pengembalian dana 100% jika terjadi kondisi berikut:</p>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  2. Garansi 100% Pengembalian Dana
+                </h2>
+                <p className="text-slate-600">
+                  Kami memberikan garansi pengembalian dana penuh jika terjadi salah satu kondisi berikut:
+                </p>
                 
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2 text-emerald-950">
-                  <div className="flex items-center gap-2 font-bold text-xs text-emerald-900">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Kriteria Pengajuan Refund yang Diterima:</span>
-                  </div>
-                  <ul className="list-disc pl-6 space-y-1.5 text-xs text-emerald-900">
-                    <li>File produk yang diunduh rusak/korup total dan tim support kami tidak dapat memberikan file pengganti yang berfungsi dalam waktu <strong>3x24 jam</strong>.</li>
-                    <li>Terdapat fatal error pada source code yang terbukti berasal dari kesalahan sistem awal dan tidak dapat diperbaiki oleh tim pengembang kami.</li>
-                    <li>Terjadi transaksi ganda (terbayar 2 kali untuk nomor pesanan yang sama akibat gangguan jaringan gateway).</li>
+                <div className="p-5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-2.5 text-emerald-950">
+                  <span className="font-bold text-xs sm:text-sm text-emerald-900 block">
+                    Kriteria Klaim Refund:
+                  </span>
+                  <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-emerald-900">
+                    <li>Berkas produk rusak atau tidak dapat diunduh, dan tim teknis kami tidak dapat mengirimkan berkas pengganti dalam waktu 3x24 jam.</li>
+                    <li>Source code mengalami fatal error dari sistem awal yang terbukti tidak dapat diperbaiki oleh tim pengembang kami.</li>
+                    <li>Terjadi transaksi ganda untuk pesanan yang sama akibat kendala jaringan payment gateway.</li>
                   </ul>
                 </div>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
-                  <h2>3. Pengecualian Refund (Tidak Berlaku)</h2>
-                </div>
-                <p>Permohonan pengembalian dana <strong>TIDAK DAPAT diproses</strong> dalam kondisi berikut:</p>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  3. Pengecualian Garansi (Tidak Berlaku)
+                </h2>
+                <p className="text-slate-600">
+                  Pengembalian dana tidak berlaku dalam kondisi berikut:
+                </p>
                 
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-2 text-rose-950">
-                  <ul className="list-disc pl-6 space-y-1.5 text-xs text-rose-900">
-                    <li>Salah membeli varian produk atau berubah pikiran setelah file diunduh.</li>
-                    <li>Komputer atau server hosting milik pembeli tidak memenuhi spesifikasi minimum yang sudah tercantum di deskripsi produk (misal: versi PHP / Node.js tidak sesuai).</li>
-                    <li>Kendala akibat modifikasi pihak ketiga yang dilakukan sendiri oleh pembeli di luar kode asli.</li>
-                    <li>Kurangnya kemampuan teknis dasar pembeli dalam mengoperasikan CMS / bahasa pemrograman terkait.</li>
+                <div className="p-5 rounded-2xl bg-rose-50/80 border border-rose-200/80 space-y-2.5 text-rose-950">
+                  <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-rose-900">
+                    <li>Pembeli salah memilih varian produk atau berubah pikiran setelah mengunduh berkas.</li>
+                    <li>Perangkat atau hosting pembeli tidak memenuhi spesifikasi minimum yang tercantum pada deskripsi produk.</li>
+                    <li>Kendala timbul akibat modifikasi kode yang dilakukan sendiri oleh pembeli.</li>
+                    <li>Kurangnya pengetahuan teknis dasar dalam mengoperasikan CMS atau bahasa pemrograman terkait.</li>
                   </ul>
                 </div>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <HelpCircle className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>4. Prosedur Klaim Garansi / Support</h2>
-                </div>
-                <p>Jika Anda mengalami kendala teknis atau memenuhi kriteria refund di atas, silakan ikuti langkah mudah ini:</p>
-                <ol className="list-decimal pl-5 space-y-2 text-xs text-gray-600">
-                  <li>Persiapkan <strong>Nomor Invoice / ID Pesanan</strong> dan email yang digunakan saat bertransaksi.</li>
-                  <li>Ambil tangkapan layar (screenshot/video) pesan error yang Anda temui.</li>
-                  <li>Kirimkan laporan Anda via email support atau WhatsApp Customer Service kami di bawah ini. Tim kami akan merespons dalam waktu 1x24 jam kerja.</li>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  4. Prosedur Klaim Garansi
+                </h2>
+                <p className="text-slate-600">
+                  Untuk mengajukan klaim garansi, ikuti alur berikut:
+                </p>
+                <ol className="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-600">
+                  <li>Siapkan <strong className="text-slate-900">Nomor Pesanan</strong> dan email yang digunakan saat bertransaksi.</li>
+                  <li>Lampirkan tangkapan layar atau rekaman video kendala yang Anda temui.</li>
+                  <li>Kirimkan laporan melalui email support atau WhatsApp resmi kami. Tim kami memproses laporan dalam 1x24 jam kerja.</li>
                 </ol>
               </section>
 
               <section className="pt-4">
-                <div className="p-5 rounded-2xl bg-blue-50 border border-blue-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-5 rounded-2xl bg-blue-50/80 border border-blue-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-bold text-blue-900 text-xs">Butuh Bantuan Kendala Pesanan?</h3>
-                    <p className="text-[11px] text-blue-700">Tim bantuan Dunia Digitalia siap melayani Anda setiap hari kerja.</p>
+                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Kendala pada Pesanan Anda?</h3>
+                    <p className="text-xs text-slate-600">Tim dukungan pelanggan kami siap membantu Anda.</p>
                   </div>
                   <a
                     href={`https://wa.me/${COMPANY_INFO.whatsapp.replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5 shrink-0"
+                    className="btn-primary text-xs px-4 py-2.5 flex items-center gap-1.5 shrink-0"
                   >
                     <MessageSquare className="w-4 h-4" /> Hubungi Customer Support
                   </a>

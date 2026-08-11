@@ -31,89 +31,90 @@ export default function PrivacyPolicyPage() {
             </div>
 
             {/* Content Card */}
-            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-8 text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-8 text-xs sm:text-sm text-slate-700 leading-relaxed">
               
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>1. Pendahuluan</h2>
-                </div>
-                <p>
-                  Kebijakan Privasi ini menjelaskan bagaimana <strong>Dunia Digitalia</strong> ("kami") mengumpulkan, menggunakan, menyimpan, dan melindungi informasi pribadi Anda saat mengakses website kami di <Link href="/" className="text-blue-600 underline font-medium">dunia-digitalia.vercel.app</Link> dan membeli produk digital atau layanan jasa pembuatan web yang kami sediakan.
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  1. Pendahuluan
+                </h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Kebijakan Privasi ini menjelaskan bagaimana <strong className="text-slate-900">Dunia Digitalia</strong> mengumpulkan, menyimpan, dan melindungi informasi pribadi Anda saat mengakses platform kami dan membeli produk digital atau layanan jasa pembuatan website.
                 </p>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Eye className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>2. Informasi yang Kami Kumpulkan</h2>
-                </div>
-                <p>Kami mengumpulkan beberapa jenis informasi dari Anda untuk keperluan pengiriman pesanan dan layanan purna jual:</p>
-                <ul className="list-disc pl-5 space-y-1.5 text-xs text-gray-600">
-                  <li><strong>Informasi Akun & Kontak:</strong> Nama lengkap, alamat email, nomor telepon/WhatsApp yang Anda masukkan saat membuat akun atau melakukan pembelian.</li>
-                  <li><strong>Data Transaksi:</strong> Nomor pesanan, rincian produk yang dibeli, dan metode pembayaran yang diproses secara aman melalui Tripay Payment Gateway. (Kami <em>tidak menyimpan</em> nomor kartu atau PIN perbankan Anda).</li>
-                  <li><strong>Data Teknis:</strong> Alamat IP, jenis peramban (browser), dan log akses yang digunakan untuk keperluan keamanan sistem dan analitik internal.</li>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  2. Informasi yang Kami Kumpulkan
+                </h2>
+                <p className="text-slate-600">
+                  Kami mengumpulkan informasi terbatas dari Anda untuk keperluan pengiriman pesanan dan dukungan pelanggan:
+                </p>
+                <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-600">
+                  <li><strong className="text-slate-900">Data Akun & Kontak:</strong> Nama lengkap, alamat email, dan nomor WhatsApp saat membuat akun atau bertransaksi.</li>
+                  <li><strong className="text-slate-900">Data Transaksi:</strong> Rincian pesanan dan metode pembayaran yang diproses secara aman melalui Tripay Payment Gateway. (Kami tidak menyimpan kartu kredit atau PIN perbankan Anda).</li>
+                  <li><strong className="text-slate-900">Data Teknis:</strong> Alamat IP dan jenis peramban (browser) untuk analisis performa dan keamanan platform.</li>
                 </ul>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Lock className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>3. Penggunaan Informasi Anda</h2>
-                </div>
-                <p>Informasi yang dikumpulkan digunakan secara eksklusif untuk tujuan berikut:</p>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  3. Penggunaan Informasi
+                </h2>
+                <p className="text-slate-600">
+                  Informasi yang dikumpulkan digunakan untuk tujuan berikut:
+                </p>
                 <div className="grid sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-gray-100 flex items-start gap-2.5">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="block text-gray-900 font-bold text-xs">Pengiriman Produk Automatis</strong>
-                      <span className="text-[11px] text-gray-500">Mengirimkan file lisensi & link unduh ke email dan portal pelanggan.</span>
+                      <strong className="block text-slate-900 font-bold text-xs sm:text-sm">Pengiriman Produk Otomatis</strong>
+                      <span className="text-xs text-slate-500">Mengirimkan berkas lisensi dan tautan unduh ke email serta akun Anda.</span>
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-gray-100 flex items-start gap-2.5">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="block text-gray-900 font-bold text-xs">Dukungan Teknis & Support</strong>
-                      <span className="text-[11px] text-gray-500">Membantu proses instalasi template atau garansi perbaikan kode.</span>
+                      <strong className="block text-slate-900 font-bold text-xs sm:text-sm">Dukungan Teknis</strong>
+                      <span className="text-xs text-slate-500">Membantu proses instalasi template atau garansi perbaikan kode.</span>
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-gray-100 flex items-start gap-2.5">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="block text-gray-900 font-bold text-xs">Konfirmasi Pembayaran Tripay</strong>
-                      <span className="text-[11px] text-gray-500">Memverifikasi callback status pembayaran secara real-time.</span>
+                      <strong className="block text-slate-900 font-bold text-xs sm:text-sm">Verifikasi Pembayaran</strong>
+                      <span className="text-xs text-slate-500">Memverifikasi konfirmasi status pembayaran real-time dari Tripay.</span>
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-gray-100 flex items-start gap-2.5">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="block text-gray-900 font-bold text-xs">Pembaruan & Promo</strong>
-                      <span className="text-[11px] text-gray-500">Mengirimkan info rilis versi baru atau kupon diskon eksklusif.</span>
+                      <strong className="block text-slate-900 font-bold text-xs sm:text-sm">Pembaruan & Promo</strong>
+                      <span className="text-xs text-slate-500">Mengirimkan informasi rilis versi baru atau kupon diskon eksklusif.</span>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <FileText className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>4. Perlindungan & Keamanan Data</h2>
-                </div>
-                <p>
-                  Kami berkomitmen menjaga kerahasiaan data pribadi Anda. Kami menggunakan enkripsi HTTPS/SSL di seluruh platform dan database Supabase dengan standar keamanan tinggi. Informasi pribadi Anda <strong>tidak akan pernah dijual, disewakan, atau dibagikan kepada pihak ketiga manapun</strong> untuk keperluan pemasaran tanpa izin tertulis dari Anda.
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  4. Keamanan Data
+                </h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Kami menjaga kerahasiaan data pribadi Anda dengan enkripsi SSL/HTTPS pada seluruh platform dan infrastruktur Supabase. Informasi pribadi Anda tidak akan pernah dijual atau dibagikan kepada pihak ketiga.
                 </p>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Mail className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>5. Hubungi Kami</h2>
-                </div>
-                <p>Jika Anda memiliki pertanyaan terkait Kebijakan Privasi ini atau ingin mengajukan penghapusan data akun, silakan hubungi tim kami:</p>
-                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 text-xs text-blue-950 space-y-1 font-medium">
-                  <p>• <strong>Email:</strong> {COMPANY_INFO.email}</p>
-                  <p>• <strong>WhatsApp:</strong> {COMPANY_INFO.phone}</p>
-                  <p>• <strong>Alamat:</strong> {COMPANY_INFO.address}</p>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  5. Hubungi Kami
+                </h2>
+                <p className="text-slate-600">
+                  Jika Anda memiliki pertanyaan mengenai Kebijakan Privasi ini, silakan hubungi kami:
+                </p>
+                <div className="p-5 rounded-2xl bg-blue-50/80 border border-blue-200/80 text-xs sm:text-sm text-slate-700 space-y-1.5 font-medium">
+                  <p><strong className="text-slate-900">Email:</strong> {COMPANY_INFO.email}</p>
+                  <p><strong className="text-slate-900">WhatsApp:</strong> {COMPANY_INFO.phone}</p>
+                  <p><strong className="text-slate-900">Alamat:</strong> {COMPANY_INFO.address}</p>
                 </div>
               </section>
 

@@ -31,83 +31,83 @@ export default function TermsAndConditionsPage() {
             </div>
 
             {/* Content Card */}
-            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-gray-200 shadow-sm space-y-8 text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-8 text-xs sm:text-sm text-slate-700 leading-relaxed">
               
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Scale className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>1. Ketentuan Umum</h2>
-                </div>
-                <p>
-                  Dengan mengakses website <strong>Dunia Digitalia</strong> dan melakukan transaksi pembelian produk (Template Blogger, Source Code, Ebook, AI Prompt) atau layanan jasa pembuatan website, Anda secara otomatis menyetujui seluruh Syarat & Ketentuan yang berlaku di bawah ini.
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  1. Ketentuan Umum
+                </h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Dengan mengakses platform <strong className="text-slate-900">Dunia Digitalia</strong> dan bertransaksi membeli produk digital (Template Blogger, Source Code, Ebook, AI Prompt) atau layanan jasa pembuatan website, Anda menyetujui seluruh Syarat & Ketentuan yang berlaku di bawah ini.
                 </p>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Code2 className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>2. Hak Cipta & Lisensi Penggunaan</h2>
-                </div>
-                <p>Seluruh produk digital yang dijual di Dunia Digitalia dilindungi oleh hak cipta. Pembelian produk memberikan Anda <strong>Lisensi Penggunaan Non-Eksklusif</strong> dengan ketentuan:</p>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  2. Hak Cipta & Lisensi Penggunaan
+                </h2>
+                <p className="text-slate-600">
+                  Seluruh produk digital di platform ini dilindungi oleh hak cipta. Pembelian produk memberikan Anda <strong className="text-slate-900">Lisensi Penggunaan Non-Eksklusif</strong> dengan ketentuan:
+                </p>
                 
                 <div className="space-y-3 pt-2">
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1 text-emerald-950">
-                    <div className="flex items-center gap-2 font-bold text-xs text-emerald-900">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>HAL YANG DIPERBOLEHKAN (Diizinkan):</span>
-                    </div>
-                    <ul className="list-disc pl-6 space-y-1 text-xs text-emerald-900">
-                      <li>Menggunakan template/source code untuk proyek domain pribadi atau klien.</li>
-                      <li>Mengubah, memodifikasi desain, dan menyesuaikan warna atau fitur kode sesuai kebutuhan.</li>
-                      <li>Memasang source code di server hosting pribadi atau VPS milik Anda.</li>
+                  <div className="p-5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-2 text-emerald-950">
+                    <span className="font-bold text-xs sm:text-sm text-emerald-900 block">
+                      Hal yang Diizinkan:
+                    </span>
+                    <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-emerald-900">
+                      <li>Menggunakan berkas untuk proyek situs pribadi atau proyek klien.</li>
+                      <li>Mengubah desain, warna, dan struktur kode sesuai kebutuhan proyek.</li>
+                      <li>Memasang source code pada server hosting pribadi atau VPS milik Anda.</li>
                     </ul>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1 text-rose-950">
-                    <div className="flex items-center gap-2 font-bold text-xs text-rose-900">
-                      <AlertTriangle className="w-4 h-4 text-rose-600" />
-                      <span>LARANGAN KERAS (Dilarang):</span>
-                    </div>
-                    <ul className="list-disc pl-6 space-y-1 text-xs text-rose-900">
-                      <li>Mendistribusikan ulang, menjual kembali (re-sell), atau membagikan file produk secara gratis di forum/sosial media.</li>
-                      <li>Menghapus footer kredit pembuat lisensi jika dilarang oleh varian paket lisensi produk terkait.</li>
-                      <li>Menggunakan produk untuk aktivitas ilegal, judi online, penipuan, atau konten melanggar hukum RI.</li>
+                  <div className="p-5 rounded-2xl bg-rose-50/80 border border-rose-200/80 space-y-2 text-rose-950">
+                    <span className="font-bold text-xs sm:text-sm text-rose-900 block">
+                      Larangan Penggunaan:
+                    </span>
+                    <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-rose-900">
+                      <li>Mendistribusikan ulang, menjual kembali, atau membagikan berkas produk secara gratis di publik.</li>
+                      <li>Menghapus kredit pembuat jika diwajibkan oleh jenis paket lisensi produk terkait.</li>
+                      <li>Menggunakan produk untuk aktivitas ilegal, judi online, penipuan, atau konten yang melanggar hukum.</li>
                     </ul>
                   </div>
                 </div>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <FileText className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>3. Pembayaran & Pengiriman Instan</h2>
-                </div>
-                <p>
-                  Semua transaksi diproses secara real-time via <strong>Tripay Payment Gateway</strong> (QRIS, BCA, BNI, BRI, Mandiri, Permata, Indomaret, Alfamart). Setelah sistem menerima konfirmasi lulus pembayaran:
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  3. Pembayaran & Pengiriman Produk
+                </h2>
+                <p className="text-slate-600">
+                  Semua transaksi diproses otomatis melalui <strong className="text-slate-900">Tripay Payment Gateway</strong> (QRIS, Virtual Account, Minimarket). Setelah pembayaran dikonfirmasi:
                 </p>
-                <ul className="list-disc pl-5 space-y-1 text-xs text-gray-600">
-                  <li>File produk dan instruksi lisensi akan <strong>langsung tersedia untuk diunduh</strong> di Portal Pelanggan akun Anda.</li>
-                  <li>Link download dan bukti transaksi (Invoice PDF) juga otomatis dikirimkan ke alamat email terdaftar Anda.</li>
+                <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-600">
+                  <li>Berkas produk dan lisensi langsung tersedia untuk diunduh melalui akun pelanggan Anda.</li>
+                  <li>Tautan unduh dan bukti transaksi otomatis dikirimkan ke alamat email terdaftar Anda.</li>
                 </ul>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-base font-bold text-gray-900">
-                  <ShieldAlert className="w-5 h-5 text-blue-600 shrink-0" />
-                  <h2>4. Ketentuan Jasa Pembuatan Website</h2>
-                </div>
-                <p>Khusus untuk pemesanan paket <strong>Jasa Web Development</strong>:</p>
-                <ul className="list-disc pl-5 space-y-1.5 text-xs text-gray-600">
-                  <li>Estimasi pengerjaan dihitung sejak materi (logo, konten teks, gambar) lengkap dikirimkan oleh klien.</li>
-                  <li>Klien berhak mendapatkan revisi gratis sesuai dengan kuota paket jasa yang dipilih.</li>
-                  <li>Dunia Digitalia memberikan garansi perawatan bebas bug/error teknis selama 30-90 hari setelah website rilis.</li>
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  4. Ketentuan Jasa Pembuatan Website
+                </h2>
+                <p className="text-slate-600">
+                  Untuk pemesanan paket <strong className="text-slate-900">Jasa Web Development</strong>:
+                </p>
+                <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-600">
+                  <li>Waktu pengerjaan dihitung sejak Anda melengkapi materi awal (logo, konten teks, dan referensi).</li>
+                  <li>Revisi gratis berlaku sesuai kuota paket jasa yang dipilih.</li>
+                  <li>Dunia Digitalia memberikan garansi perawatan bebas bug selama 30 hingga 90 hari setelah website rilis.</li>
                 </ul>
               </section>
 
-              <section className="space-y-3 pt-6 border-t border-gray-100">
-                <h2 className="text-base font-bold text-gray-900">5. Perubahan Ketentuan</h2>
-                <p>
-                  Dunia Digitalia berhak memperbarui Syarat & Ketentuan ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap syarat yang baru.
+              <section className="space-y-3 pt-6 border-t border-slate-100">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  5. Perubahan Ketentuan
+                </h2>
+                <p className="text-slate-600">
+                  Dunia Digitalia dapat memperbarui Syarat & Ketentuan ini sewaktu-waktu. Penggunaan berkelanjutan atas situs ini setelah perubahan menandakan persetujuan Anda terhadap aturan terbaru.
                 </p>
               </section>
 
