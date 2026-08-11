@@ -42,25 +42,9 @@ export default function CheckoutPage() {
       const params = new URLSearchParams(window.location.search);
       const prodId = params.get('product');
       if (prodId) {
-        // Cari slug produk dari data lokal untuk redirect ke halaman detail
-        const localProd = PRODUCTS_DATA.find(p => p.id === prodId);
-        if (localProd?.slug) {
-          router.push(`/produk/${localProd.slug}`);
-          return;
-        }
-        // Fallback: cari di Supabase
-        getCollection<any>('products').then(data => {
-          const dbProd = data.find(p => p.id === prodId);
-          if (dbProd?.slug) {
-            router.push(`/produk/${dbProd.slug}`);
-          } else {
-            router.push('/produk');
-          }
-        }).catch(() => {
-          router.push('/produk');
-        });
+        router.push('/login?tab=login');
       } else {
-        router.push('/produk');
+        router.push('/login');
       }
       return;
     }
