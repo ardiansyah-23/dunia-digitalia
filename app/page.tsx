@@ -202,11 +202,6 @@ export default function MarketplaceHomePage() {
                 {/* Left Column — Content */}
                 <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
                   
-                  {/* Category Pill Tag */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold shadow-2xs">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
-                    <span>Marketplace Digital & Web Development Agency</span>
-                  </div>
 
                   {/* Main Headline */}
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.12] tracking-tight text-balance">
